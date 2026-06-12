@@ -1,8 +1,10 @@
 # Homepage Redesign Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+>
+> Status update: this is a historical plan. The implemented app has evolved to use `智能体` / `多智能体 API`, includes the local browser annotation workflow, and should not be reimplemented from the older examples verbatim.
 
-**Goal:** Rebuild the homepage directory UI into a denser, cleaner directory-first experience with light console polish while preserving the current data model and routes.
+**Goal:** Rebuild the homepage directory UI into a denser, cleaner directory-first experience with light console polish while preserving the official-agent and multi-agent API provider split.
 
 **Architecture:** Keep the existing route structure and `AgentDirectory` as the main composition point, but tighten the homepage layout, card hierarchy, and sidebar utilities inside the current component boundary. Use test-first changes to lock in the new visible structure and interaction cues before refactoring styles and detail-page consistency.
 
@@ -16,6 +18,7 @@
 - Modify: `components/agent-directory.test.tsx` — homepage UI behavior and content assertions
 - Modify: `app/agents/[slug]/page.tsx` — align detail-page visual tone if needed
 - Modify: `app/providers/[slug]/page.tsx` — align detail-page visual tone if needed
+- Modify: `app/api/annotations/route.ts` — local browser annotation read/write API
 - Modify: `app/globals.css` — shared visual refinements only if component-local utilities are insufficient
 
 ### Task 1: Lock the homepage structure with failing tests
@@ -31,9 +34,9 @@ it("renders a compact directory workspace with utility sidebar content", () => {
   render(<AgentDirectory agents={agents} providers={providers} />);
 
   expect(screen.getByRole("heading", { name: "API 供应导航" })).toBeInTheDocument();
-  expect(screen.getByText("官方入口与第三方 API 供应关系分开整理")).toBeInTheDocument();
+  expect(screen.getByText("官方入口与多智能体 API 供应关系分开整理")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "智能体" })).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "第三方供应商" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "多智能体 API" })).toBeInTheDocument();
   expect(screen.getByRole("heading", { name: "目录规则" })).toBeInTheDocument();
   expect(screen.getByRole("heading", { name: "快速对比" })).toBeInTheDocument();
 });
@@ -54,7 +57,7 @@ Update `components/agent-directory.tsx` so the top section remains present but i
     <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
       <div className="space-y-4">
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-teal-700">官方入口与第三方 API 供应关系分开整理</p>
+          <p className="text-sm font-semibold text-teal-700">官方入口与多智能体 API 供应关系分开整理</p>
           <h1 className="text-2xl font-semibold text-slate-950 sm:text-3xl">API 供应导航</h1>
         </div>
         {/* segmented switch + controls */}
@@ -88,9 +91,9 @@ it("keeps official and provider information separated in their respective cards"
   expect(screen.getByText("官方 API")).toBeInTheDocument();
   expect(screen.queryByText("支持智能体")).not.toBeInTheDocument();
 
-  await userEvent.click(screen.getByRole("button", { name: "第三方供应商" }));
+  await userEvent.click(screen.getByRole("button", { name: "多智能体 API" }));
 
-  expect(screen.getByText("支持智能体")).toBeInTheDocument();
+  expect(screen.getByText("支持智能体 API")).toBeInTheDocument();
   expect(screen.getByRole("link", { name: "文档" })).toBeInTheDocument();
 });
 ```
@@ -121,7 +124,7 @@ Adjust `ChannelSummary` usage and provider support block labels in `components/a
 
 ```tsx
 <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
-  <div className="text-xs font-semibold text-slate-500">支持智能体</div>
+  <div className="text-xs font-semibold text-slate-500">支持智能体 API</div>
   <div className="mt-2 flex flex-wrap gap-2">{/* badges */}</div>
 </div>
 ```
@@ -130,6 +133,13 @@ Adjust `ChannelSummary` usage and provider support block labels in `components/a
 
 Run: `npm test -- components/agent-directory.test.tsx`
 Expected: PASS with clear separation between official agent data and provider coverage data.
+
+Current implementation notes:
+
+- `登录` and `官方 API` action buttons align to the lower-left area of agent cards.
+- `网站地址` and `文档` action buttons align to the lower-left area of multi-agent API provider cards, with `网站地址` rendered before `文档`.
+- The UI renders `中转站` only for pure relay providers; it does not render a visible `非纯中转站` badge.
+- Pure relay providers are sorted after non-relay providers.
 
 ### Task 3: Implement the homepage layout and spacing refactor
 
@@ -247,7 +257,7 @@ Expected: PASS
 Run: `npm test`
 Expected: PASS
 
-- [ ] **Step 3: Run production build**
+- [ ] **Step 3: Run production build only after stopping the dev server**
 
 Run: `npm run build`
 Expected: PASS
@@ -256,3 +266,5 @@ Expected: PASS
 
 Run: `npm run dev`
 Expected: local dev server starts and the homepage reflects the new compact directory layout at desktop and mobile widths.
+
+Do not run `npm run build` while `npm run dev` is active. If the UI starts returning missing chunk errors or `/api/annotations` returns 404, stop the dev server, delete `.next`, and restart the dev server.

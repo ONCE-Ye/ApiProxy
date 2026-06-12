@@ -6,6 +6,7 @@
 
 - `智能体`：只展示官方登录入口、官方 API、基础说明
 - `多智能体 API`：单独展示支持 2 个及以上智能体 API 的平台、支持范围、中转站标签、网站地址与文档入口
+- `页面批注`：浏览器内开启批注模式后，可直接点击页面区域写修改意见，保存到本地 `.annotations/page-notes.json`
 - 搜索与筛选：按名称、标签、区域快速过滤
 - 详情页：分别提供智能体详情页和多智能体 API 平台详情页
 
@@ -20,6 +21,16 @@ npm run dev
 
 - `http://localhost:3000`
 
+本项目协作调试时常用端口：
+
+```bash
+npm run dev -- -H 0.0.0.0 -p 3004
+```
+
+对应浏览器地址：
+
+- `http://localhost:3004`
+
 常用命令：
 
 ```bash
@@ -28,10 +39,13 @@ npm run lint    # 代码检查
 npm test        # Vitest 测试
 ```
 
+注意：不要在 `npm run dev` 正在运行时直接执行 `npm run build`。Next.js 的 `.next` 开发缓存和生产构建产物可能互相覆盖，导致页面 chunk 404 或 API 路由临时 404。需要构建时，先停止 dev server；若页面异常，删除 `.next` 后重新启动 dev server。
+
 ## 项目结构
 
 ```text
 app/                 Next.js 路由与 API
+app/api/annotations/ 页面批注读写 API
 components/          页面组件
 data/                智能体与多智能体 API 平台静态数据
 lib/                 过滤、统计等纯函数
@@ -44,13 +58,25 @@ docs/                设计与实现记录
 - `data/agents.ts`：智能体官方信息
 - `data/providers.ts`：多智能体 API 平台信息
 - `components/agent-directory.tsx`：首页主目录界面
+- `app/api/annotations/route.ts`：本地页面批注 API
 
 ## 数据维护规则
 
 1. 不要把多智能体 API 平台重新混入智能体官方卡片。
 2. 智能体数据里优先维护 `officialLogin` 和 `officialApi`。
 3. 多智能体 API 平台数据里维护 `supportedAgentSlugs`、`isPureRelay`、可选的 `docsUrl`、可选的 `consoleUrl` 和说明文本；没有独立文档地址时不要用控制台地址冒充文档。
-4. 重新核验过信息后更新 `lastVerified`。
+4. `isPureRelay` 仍用于判断和排序：中转站供应商排在非纯中转站后面；界面只显示“中转站”标签，不显示“非纯中转站”标签。
+5. 供应商入口按钮文案使用“网站地址”和“文档”；有网站地址时放在文档前面。
+6. 重新核验过信息后更新 `lastVerified`。
+
+## 批注工作流
+
+1. 在浏览器打开页面，点击右上角 `批注模式`。
+2. 点击需要修改的区域，直接填写修改意见。
+3. 点击 `保存到项目批注`，批注会写入 `.annotations/page-notes.json`。
+4. `.annotations/` 已加入 `.gitignore`，批注只作为本地协作输入，不提交到仓库。
+
+如果保存失败，先确认 `app/api/annotations/route.ts` 是否被 dev server 正确识别。常见修复方式是停止 dev server、删除 `.next`、重新执行 `npm run dev -- -H 0.0.0.0 -p 3004`。
 
 ## 测试
 
@@ -63,5 +89,11 @@ docs/                设计与实现记录
 
 ```bash
 npm test
+npm run lint
+```
+
+涉及路由、静态生成或生产构建风险时，再在停止 dev server 后运行：
+
+```bash
 npm run build
 ```
