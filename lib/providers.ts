@@ -1,15 +1,23 @@
 import { agents } from "@/data/agents";
-import { providers, type ProviderRegionFilter } from "@/data/providers";
+import { providers, type ProviderProfile, type ProviderRegionFilter } from "@/data/providers";
 
 export type ProviderFilter = {
   query?: string;
   region?: ProviderRegionFilter;
 };
 
+export function isMultiAgentApiProvider(provider: ProviderProfile) {
+  return provider.supportedAgentSlugs.length >= 2;
+}
+
+export const multiAgentApiProviders = providers
+  .filter(isMultiAgentApiProvider)
+  .sort((a, b) => Number(a.isPureRelay) - Number(b.isPureRelay));
+
 export function filterProviders({ query = "", region = "all" }: ProviderFilter = {}) {
   const normalizedQuery = query.trim().toLowerCase();
 
-  return providers.filter((provider) => {
+  return multiAgentApiProviders.filter((provider) => {
     const matchesRegion = region === "all" || provider.region === region;
 
     if (!matchesRegion) {
@@ -30,7 +38,9 @@ export function filterProviders({ query = "", region = "all" }: ProviderFilter =
       provider.region,
       provider.summary,
       provider.notes,
+      provider.isPureRelay ? "中转站 纯中转站 relay aggregator" : "非纯中转站 自有智能体 平台",
       ...provider.tags,
+      ...(provider.supportedApiLabels ?? []),
       ...supportedAgentNames
     ]
       .filter(Boolean)
@@ -42,11 +52,11 @@ export function filterProviders({ query = "", region = "all" }: ProviderFilter =
 }
 
 export function getProviderBySlug(slug: string) {
-  return providers.find((provider) => provider.slug === slug);
+  return multiAgentApiProviders.find((provider) => provider.slug === slug);
 }
 
 export const providerStats = {
-  total: providers.length,
-  global: providers.filter((provider) => provider.region === "global").length,
-  china: providers.filter((provider) => provider.region === "china").length
+  total: multiAgentApiProviders.length,
+  global: multiAgentApiProviders.filter((provider) => provider.region === "global").length,
+  china: multiAgentApiProviders.filter((provider) => provider.region === "china").length
 };

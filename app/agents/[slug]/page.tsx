@@ -75,7 +75,7 @@ export default function AgentPage({ params }: AgentPageProps) {
         <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <h2 className="text-base font-semibold text-slate-950">说明</h2>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            当前页面只保留该智能体的官方登录与官方 API 信息。第三方供应商已从智能体条目中拆出，请回到首页查看单独的第三方供应商目录。
+            当前页面只保留该智能体的官方登录与官方 API 信息。多智能体 API 平台已从智能体条目中拆出，请回到首页查看单独的多智能体 API 目录。
           </p>
           <p className="mt-3 text-xs text-slate-500">最后核验：{agent.lastVerified}</p>
         </section>

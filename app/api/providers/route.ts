@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { providers } from "@/data/providers";
+import { multiAgentApiProviders } from "@/lib/providers";
 
 export function GET() {
-  return NextResponse.json({ providers });
+  return NextResponse.json({ providers: multiAgentApiProviders });
 }

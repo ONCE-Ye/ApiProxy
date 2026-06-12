@@ -2,8 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, Building2, Cable, Server } from "lucide-react";
 import { agents, type AgentProfile } from "@/data/agents";
-import { providers } from "@/data/providers";
-import { getProviderBySlug } from "@/lib/providers";
+import { getProviderBySlug, multiAgentApiProviders } from "@/lib/providers";
 
 type ProviderPageProps = {
   params: {
@@ -12,18 +11,18 @@ type ProviderPageProps = {
 };
 
 export function generateStaticParams() {
-  return providers.map((provider) => ({ slug: provider.slug }));
+  return multiAgentApiProviders.map((provider) => ({ slug: provider.slug }));
 }
 
 export function generateMetadata({ params }: ProviderPageProps) {
   const provider = getProviderBySlug(params.slug);
 
   if (!provider) {
-    return { title: "未找到供应商" };
+    return { title: "未找到平台" };
   }
 
   return {
-    title: provider.name + " - 第三方 API 供应商",
+    title: provider.name + " - 多智能体 API",
     description: provider.summary
   };
 }
@@ -38,6 +37,9 @@ export default function ProviderPage({ params }: ProviderPageProps) {
   const supportedAgents = provider.supportedAgentSlugs
     .map((slug) => agents.find((agent) => agent.slug === slug))
     .filter((agent): agent is AgentProfile => Boolean(agent));
+  const supportLabels = provider.supportedApiLabels?.length
+    ? provider.supportedApiLabels
+    : supportedAgents.map((agent) => agent.name);
 
   return (
     <main className="min-h-screen bg-slate-100 text-ink">
@@ -49,14 +51,17 @@ export default function ProviderPage({ params }: ProviderPageProps) {
           </Link>
           <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
-              <p className="text-sm font-semibold text-teal-700">{provider.region === "china" ? "国内供应商" : "国际供应商"}</p>
+              <p className="text-sm font-semibold text-teal-700">{provider.region === "china" ? "国内多智能体 API" : "国际多智能体 API"}</p>
               <h1 className="mt-2 text-3xl font-semibold text-slate-950">{provider.name}</h1>
-              <p className="mt-1 text-base font-medium text-slate-500">{provider.vendor}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <p className="text-base font-medium text-slate-500">{provider.vendor}</p>
+                <RelayBadge isPureRelay={provider.isPureRelay} />
+              </div>
               <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">{provider.summary}</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <ExternalLink href={provider.docsUrl}>文档</ExternalLink>
-              {provider.consoleUrl ? <ExternalLink href={provider.consoleUrl}>控制台</ExternalLink> : null}
+              {provider.consoleUrl ? <ExternalLink href={provider.consoleUrl}>网站地址</ExternalLink> : null}
+              {provider.docsUrl ? <ExternalLink href={provider.docsUrl}>文档</ExternalLink> : null}
             </div>
           </div>
         </div>
@@ -65,10 +70,10 @@ export default function ProviderPage({ params }: ProviderPageProps) {
       <section className="mx-auto grid max-w-5xl gap-5 px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid gap-5 md:grid-cols-3">
           <InfoCard icon={<Server className="h-4 w-4" />} title="平台定位">
-            {provider.notes}
+            <ProviderNotes notes={provider.notes} highlight={provider.notesHighlight} />
           </InfoCard>
-          <InfoCard icon={<Cable className="h-4 w-4" />} title="支持智能体">
-            {String(supportedAgents.length)} 个已检索智能体
+          <InfoCard icon={<Cable className="h-4 w-4" />} title="支持智能体 API">
+            {String(supportLabels.length)} 个已检索智能体 API
           </InfoCard>
           <InfoCard icon={<Building2 className="h-4 w-4" />} title="核验时间">
             {provider.lastVerified}
@@ -76,25 +81,66 @@ export default function ProviderPage({ params }: ProviderPageProps) {
         </div>
 
         <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="text-base font-semibold text-slate-950">支持的智能体</h2>
+          <h2 className="text-base font-semibold text-slate-950">支持的智能体 API</h2>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {supportedAgents.map((agent) => (
-              <Link
-                key={agent.slug}
-                href={"/agents/" + agent.slug}
-                className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-4 hover:border-teal-600"
-              >
-                <div>
-                  <div className="text-sm font-semibold text-slate-950">{agent.name}</div>
-                  <div className="mt-1 text-sm text-slate-600">{agent.vendor}</div>
-                </div>
-                <ArrowUpRight className="h-4 w-4 text-slate-500" />
-              </Link>
-            ))}
+            {supportLabels.map((label) => {
+              const agent = agents.find((item) => item.name === label || item.slug === label.toLowerCase());
+
+              if (!agent) {
+                return (
+                  <div key={label} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <div className="text-sm font-semibold text-slate-950">{label}</div>
+                    <div className="mt-1 text-sm text-slate-600">以平台控制台支持范围为准</div>
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={agent.slug}
+                  href={"/agents/" + agent.slug}
+                  className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-4 hover:border-teal-600"
+                >
+                  <div>
+                    <div className="text-sm font-semibold text-slate-950">{agent.name}</div>
+                    <div className="mt-1 text-sm text-slate-600">{agent.vendor}</div>
+                  </div>
+                  <ArrowUpRight className="h-4 w-4 text-slate-500" />
+                </Link>
+              );
+            })}
           </div>
         </section>
       </section>
     </main>
+  );
+}
+
+function RelayBadge({ isPureRelay }: { isPureRelay: boolean }) {
+  if (!isPureRelay) {
+    return null;
+  }
+
+  return (
+    <span className="inline-flex h-7 items-center rounded-md border border-amber-200 bg-amber-50 px-2.5 text-xs font-semibold text-amber-800">
+      中转站
+    </span>
+  );
+}
+
+function ProviderNotes({ notes, highlight }: { notes: string; highlight?: string }) {
+  if (!highlight || !notes.includes(highlight)) {
+    return <>{notes}</>;
+  }
+
+  const [before, after] = notes.split(highlight);
+
+  return (
+    <>
+      {before}
+      <strong className="font-semibold text-slate-900">{highlight}</strong>
+      {after}
+    </>
   );
 }
 
