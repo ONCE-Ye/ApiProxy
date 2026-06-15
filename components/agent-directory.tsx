@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Bot, Building2, Check, KeyRound, Layers3, LogIn, MessageSquarePlus, Save, Search, SlidersHorizontal, X } from "lucide-react";
+import { ArrowUpRight, Bot, Building2, Check, KeyRound, Layers3, LogIn, Mail, MessageSquarePlus, Save, Search, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { channelFilterLabels, type AgentChannelFilter, type AgentProfile } from "@/data/agents";
 import { providerFilterLabels, type ProviderProfile, type ProviderRegionFilter } from "@/data/providers";
@@ -25,6 +25,8 @@ type AnnotationDraft = {
 
 const agentFilters: AgentChannelFilter[] = ["all", "china", "global"];
 const providerFilters: ProviderRegionFilter[] = ["all", "china", "global"];
+const contactEmail = "y_j-z@foxmail.com";
+const contactMessage = "如有收录建议、链接失效或接入信息需要补充，可以通过邮箱联系我。";
 
 export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
   const [view, setView] = useState<DirectoryView>("agents");
@@ -108,12 +110,13 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
   }
 
   return (
-    <main className={"min-h-screen bg-slate-100 text-ink " + (annotationMode ? "cursor-crosshair" : "")} onClickCapture={handleAnnotationClick}>
-      <section className="border-b border-slate-200 bg-slate-50/80 backdrop-blur">
+    <main data-testid="registry-shell" className={"min-h-screen bg-[#eef2f6] text-ink " + (annotationMode ? "cursor-crosshair" : "")} onClickCapture={handleAnnotationClick}>
+      <section className="border-b border-[#d8dee8] bg-[#f8fafc]/95 backdrop-blur">
         <div className="mx-auto max-w-7xl space-y-4 px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-2">
-              <p className="text-sm font-semibold text-teal-700">官方入口与多智能体 API 供应关系分开整理</p>
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0f766e]">API REGISTRY</p>
+              <p className="text-sm font-semibold text-[#0f766e]">官方入口与多智能体 API 供应关系分开整理</p>
               <h1 className="text-2xl font-semibold text-slate-950 sm:text-3xl">API 供应导航</h1>
               <p className="max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">
                 把官方智能体入口和多智能体 API 平台拆开管理，便于快速确认官方渠道、支持范围和实际接入入口。
@@ -128,13 +131,13 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                 }}
                 className={
                   "inline-flex h-11 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-medium shadow-sm transition " +
-                  (annotationMode ? "border-teal-600 bg-teal-50 text-teal-800" : "border-slate-200 bg-white text-slate-700 hover:border-teal-500 hover:text-teal-700")
+                  (annotationMode ? "border-[#0f766e] bg-[#ecfdf5] text-[#0f766e]" : "border-[#d8dee8] bg-white/90 text-slate-700 hover:border-[#0f766e] hover:text-[#0f766e]")
                 }
               >
                 <MessageSquarePlus className="h-4 w-4" />
                 批注模式
               </button>
-              <div className="inline-flex w-full rounded-lg border border-slate-200 bg-white p-1 shadow-sm sm:w-auto">
+              <div className="inline-flex w-full rounded-lg border border-[#d8dee8] bg-white/90 p-1 shadow-[0_1px_2px_rgba(17,24,39,0.05)] sm:w-auto">
                 <ViewTab active={isAgentView} onClick={() => setView("agents")} icon={<Bot className="h-4 w-4" />} label="智能体" />
                 <ViewTab active={!isAgentView} onClick={() => setView("providers")} icon={<Building2 className="h-4 w-4" />} label="多智能体 API" />
               </div>
@@ -142,7 +145,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
           </div>
 
           <div className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
-            <div data-testid="directory-search-panel" className="h-full rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+            <div data-testid="directory-search-panel" className="h-full rounded-lg border border-[#d8dee8] bg-white/95 p-3 shadow-[0_1px_2px_rgba(17,24,39,0.05)] sm:p-4">
               <div className="space-y-3">
                 <label className="relative block max-w-xl">
                   <span className="sr-only">{searchLabel}</span>
@@ -152,11 +155,11 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     placeholder={searchPlaceholder}
-                    className="h-11 w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                    className="h-11 w-full rounded-md border border-[#d8dee8] bg-white pl-10 pr-3 text-sm outline-none transition focus:border-[#0f766e] focus:ring-2 focus:ring-[#0f766e]/10"
                   />
                 </label>
 
-                <div className="flex items-center gap-2 overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-1.5">
+                <div className="flex items-center gap-2 overflow-x-auto rounded-md border border-[#d8dee8] bg-[#f5f7fa] p-1.5">
                   <SlidersHorizontal className="ml-2 h-4 w-4 flex-none text-slate-400" />
                   {isAgentView
                     ? agentFilters.map((option) => (
@@ -173,7 +176,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
               </div>
             </div>
 
-            <div data-testid="directory-stats-panel" className="grid h-full grid-cols-3 gap-3 rounded-xl border border-slate-200 bg-white p-3 text-center shadow-sm">
+            <div data-testid="directory-stats-panel" className="grid h-full grid-cols-3 gap-3 rounded-lg border border-[#d8dee8] bg-white/95 p-3 text-center shadow-[0_1px_2px_rgba(17,24,39,0.05)]">
               {isAgentView ? (
                 <>
                   <Stat label="智能体" value={agentStats.total} />
@@ -205,8 +208,8 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
             {visibleAgents.length > 0 ? (
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-2">
                 {visibleAgents.map((agent) => (
-                  <article key={agent.slug} className="flex flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <div className="flex items-center gap-4">
+                  <article key={agent.slug} data-testid={"agent-card-" + agent.slug} className={"flex min-h-[340px] flex-col overflow-hidden rounded-lg border border-[#d8dee8] border-l-4 bg-white/95 p-4 shadow-[0_1px_2px_rgba(17,24,39,0.05)] " + getAgentAccentClass(agent.region)}>
+                    <div data-testid={"agent-header-" + agent.slug} className="flex min-h-[72px] items-center gap-4">
                       <AgentIcon agent={agent} />
                       <div className="min-w-0 flex-1">
                         <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-700">{agent.region === "china" ? "国内智能体" : "国际智能体"}</p>
@@ -217,7 +220,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                           </div>
                           <Link
                             href={"/agents/" + agent.slug}
-                            className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:border-teal-600 hover:text-teal-700"
+                            className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-md border border-[#d8dee8] text-slate-600 transition hover:border-[#1d4ed8] hover:text-[#1d4ed8]"
                             aria-label={"查看 " + agent.name + " 详情"}
                           >
                             <ArrowUpRight className="h-4 w-4" />
@@ -226,9 +229,9 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                       </div>
                     </div>
 
-                    <p data-testid={"agent-summary-" + agent.slug} className="mt-4 text-sm leading-6 text-slate-600">{agent.summary}</p>
+                    <p data-testid={"agent-summary-" + agent.slug} className="mt-4 min-h-[72px] line-clamp-3 text-sm leading-6 text-slate-600">{agent.summary}</p>
 
-                    <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                    <div data-testid={"agent-channels-" + agent.slug} className="mt-4 grid min-h-[96px] gap-2 sm:grid-cols-2">
                       <ChannelSummary icon={<LogIn className="h-4 w-4" />} title="官方登录" value={agent.officialLogin?.name} fallback="暂无官方登录入口" />
                       <ChannelSummary icon={<KeyRound className="h-4 w-4" />} title="官方 API" value={agent.officialApi?.name} fallback="暂无已核验官方 API" />
                     </div>
@@ -250,9 +253,9 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
               智能体卡片只保留官方登录与官方 API。多智能体 API 平台已经单独拆出，不再混在智能体条目里重复出现。
             </InfoPanel>
             <InfoPanel icon={<Check className="h-4 w-4 text-teal-700" />} title="快速对比">
-              <div className="mt-4 overflow-hidden rounded-lg border border-slate-200">
+              <div className="mt-4 overflow-hidden rounded-md border border-[#d8dee8]">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50 text-xs font-semibold text-slate-500">
+                  <thead className="bg-[#f5f7fa] font-mono text-xs font-semibold text-slate-500">
                     <tr>
                       <th className="px-3 py-2">智能体</th>
                       <th className="px-3 py-2">官方获取方式</th>
@@ -269,6 +272,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                 </table>
               </div>
             </InfoPanel>
+            <ContactPanel />
           </aside>
         </section>
       ) : (
@@ -285,7 +289,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                   <article
                     key={provider.slug}
                     data-testid={"provider-card-" + provider.slug}
-                    className="flex min-h-[390px] flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                    className={"flex min-h-[390px] flex-col overflow-hidden rounded-lg border border-[#d8dee8] border-l-4 bg-white/95 p-4 shadow-[0_1px_2px_rgba(17,24,39,0.05)] " + getProviderAccentClass(provider)}
                   >
                     <div className="flex min-h-20 items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
@@ -307,7 +311,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
 
                     <p data-testid={"provider-summary-" + provider.slug} className="mt-4 text-sm leading-6 text-slate-600">{provider.summary}</p>
 
-                    <div data-testid={"provider-support-" + provider.slug} className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div data-testid={"provider-support-" + provider.slug} className="mt-4 rounded-md border border-[#d8dee8] bg-[#f5f7fa] p-3">
                       <div className="text-xs font-semibold text-slate-500">支持智能体 API</div>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {getProviderSupportLabels(provider, agents).map((label) => (
@@ -356,6 +360,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                 </table>
               </div>
             </InfoPanel>
+            <ContactPanel />
           </aside>
         </section>
       )}
@@ -388,6 +393,18 @@ function getProviderSupportLabels(provider: ProviderProfile, agentProfiles: Agen
   return provider.supportedAgentSlugs
     .map((slug) => agentProfiles.find((item) => item.slug === slug)?.name)
     .filter((name): name is string => Boolean(name));
+}
+
+function getAgentAccentClass(region: AgentProfile["region"]) {
+  return region === "china" ? "border-l-[#0f766e]" : "border-l-[#1d4ed8]";
+}
+
+function getProviderAccentClass(provider: ProviderProfile) {
+  if (provider.isPureRelay) {
+    return "border-l-[#b45309]";
+  }
+
+  return provider.region === "china" ? "border-l-[#0f766e]" : "border-l-[#1d4ed8]";
 }
 
 function ProviderNotes({ provider, className }: { provider: ProviderProfile; className?: string }) {
@@ -515,7 +532,7 @@ function FilterButton({ active, onClick, children }: { active: boolean; onClick:
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-3">
+    <div className="rounded-md border border-[#d8dee8] bg-[#f5f7fa] px-2 py-3">
       <div className="text-2xl font-semibold text-slate-950">{value}</div>
       <div className="mt-1 text-xs text-slate-500">{label}</div>
     </div>
@@ -524,7 +541,7 @@ function Stat({ label, value }: { label: string; value: number }) {
 
 function AgentIcon({ agent }: { agent: AgentProfile }) {
   return (
-    <div data-testid={"agent-icon-" + agent.slug} className="h-16 w-16 flex-none overflow-hidden rounded-lg border border-slate-200 bg-white">
+    <div data-testid={"agent-icon-" + agent.slug} className="h-16 w-16 flex-none overflow-hidden rounded-md border border-[#d8dee8] bg-white">
       <div
         aria-hidden="true"
         className="h-full w-full bg-[url('/agent-icons/agent-icon-set.png')] bg-[length:400%_200%]"
@@ -536,7 +553,7 @@ function AgentIcon({ agent }: { agent: AgentProfile }) {
 
 function ChannelSummary({ icon, title, value, fallback }: { icon: React.ReactNode; title: string; value?: string; fallback: string }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+    <div className="flex min-h-[96px] flex-col justify-between rounded-md border border-[#d8dee8] bg-[#f5f7fa] p-3">
       <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
         {icon}
         <span>{title}</span>
@@ -552,19 +569,19 @@ function RelayBadge({ isPureRelay }: { isPureRelay: boolean }) {
   }
 
   return (
-    <span className="inline-flex h-7 items-center rounded-md border border-amber-200 bg-amber-50 px-2.5 text-xs font-semibold text-amber-800">
+    <span className="inline-flex h-7 items-center rounded-md border border-[#f0c36a] bg-[#fff7e6] px-2.5 text-xs font-semibold text-[#b45309]">
       中转站
     </span>
   );
 }
 
 function SupportBadge({ label }: { label: string }) {
-  return <span className="inline-flex h-7 items-center rounded-md border border-slate-200 bg-white px-2.5 text-sm text-slate-700">{label}</span>;
+  return <span className="inline-flex h-7 items-center rounded-md border border-[#d8dee8] bg-white px-2.5 text-sm text-slate-700">{label}</span>;
 }
 
 function InfoPanel({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-lg border border-[#d8dee8] bg-white/95 p-4 shadow-[0_1px_2px_rgba(17,24,39,0.05)]">
       <div className="flex items-center gap-2">
         {icon}
         <h3 className="text-base font-semibold text-slate-950">{title}</h3>
@@ -574,9 +591,20 @@ function InfoPanel({ icon, title, children }: { icon: React.ReactNode; title: st
   );
 }
 
+function ContactPanel() {
+  return (
+    <InfoPanel icon={<Mail className="h-4 w-4 text-teal-700" />} title="联系维护">
+      <p>{contactMessage}</p>
+      <a href={"mailto:" + contactEmail} className="mt-3 inline-flex h-9 items-center rounded-md border border-[#d8dee8] bg-white px-3 font-medium text-slate-700 transition hover:border-[#1d4ed8] hover:text-[#1d4ed8]">
+        {contactEmail}
+      </a>
+    </InfoPanel>
+  );
+}
+
 function EmptyState({ title, description }: { title: string; description: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center shadow-sm">
+    <div className="rounded-lg border border-dashed border-[#aeb8c6] bg-white/90 px-6 py-10 text-center shadow-[0_1px_2px_rgba(17,24,39,0.05)]">
       <h3 className="text-base font-semibold text-slate-950">{title}</h3>
       <p className="mt-2 text-sm text-slate-600">{description}</p>
     </div>
@@ -589,7 +617,7 @@ function ExternalLink({ href, children }: { href: string; children: React.ReactN
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition hover:border-teal-600 hover:text-teal-700"
+      className="inline-flex h-9 items-center gap-1 rounded-md border border-[#d8dee8] bg-white px-3 text-sm font-medium text-slate-700 transition hover:border-[#1d4ed8] hover:text-[#1d4ed8]"
     >
       {children}
       <ArrowUpRight className="h-3.5 w-3.5" />

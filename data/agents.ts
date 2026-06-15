@@ -46,7 +46,7 @@ export const agents: AgentProfile[] = [
     officialApi: {
       name: "OpenAI API",
       summary: "通过 OpenAI API 使用代码生成模型与 Responses API 构建开发者工具。",
-      docsUrl: "https://developers.openai.com/api/docs/models/gpt-5.1-codex",
+      docsUrl: "https://developers.openai.com/api/docs",
       consoleUrl: "https://platform.openai.com/api-keys"
     },
     tags: ["codex", "openai", "coding-agent", "code", "responses", "codex-mini"],
@@ -67,7 +67,7 @@ export const agents: AgentProfile[] = [
     officialApi: {
       name: "Anthropic API",
       summary: "提供 Messages API、Tool use、MCP connector 和 Computer use 等能力。",
-      docsUrl: "https://docs.anthropic.com/en/docs/agents-and-tools/overview",
+      docsUrl: "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview",
       consoleUrl: "https://console.anthropic.com/settings/keys"
     },
     tags: ["claude", "anthropic", "mcp", "tool-use", "long-context"],
@@ -104,7 +104,7 @@ export const agents: AgentProfile[] = [
     officialLogin: {
       name: "Grok 官方账号",
       summary: "适合直接使用 Grok 产品入口和 xAI 账号体系。",
-      url: "https://grok.com/"
+      url: "https://x.ai/grok"
     },
     officialApi: {
       name: "xAI API",
@@ -114,7 +114,7 @@ export const agents: AgentProfile[] = [
     },
     tags: ["grok", "xai", "realtime", "function-calling", "openai-compatible"],
     imagePosition: "100% 0%",
-    lastVerified: "2026-06-09"
+    lastVerified: "2026-06-15"
   },
   {
     slug: "tongyi",

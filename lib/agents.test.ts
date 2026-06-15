@@ -29,10 +29,15 @@ describe("agent directory data", () => {
     expect(getAgentBySlug("chatgpt")).toBeUndefined();
   });
 
+  it("uses the xAI Grok product page as the stable official login entry", () => {
+    expect(getAgentBySlug("grok")?.officialLogin?.url).toBe("https://x.ai/grok");
+    expect(getAgentBySlug("grok")?.lastVerified).toBe("2026-06-15");
+  });
+
   it("keeps agent profiles focused on official channels only", () => {
     for (const agent of agents) {
       expect(agent.officialLogin?.url || agent.officialApi?.docsUrl).toBeTruthy();
-      expect(agent.lastVerified).toBe("2026-06-09");
+      expect(agent.lastVerified).toMatch(/^2026-06-\d{2}$/);
       expect(agent).not.toHaveProperty("thirdPartyApis");
 
       if (agent.officialLogin) {

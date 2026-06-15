@@ -23,7 +23,9 @@ describe("AgentDirectory", () => {
   it("renders a compact directory workspace with utility sidebar content", () => {
     render(<AgentDirectory agents={agents} providers={providers} />);
 
+    expect(screen.getByTestId("registry-shell")).toHaveClass("bg-[#eef2f6]");
     expect(screen.getByRole("heading", { name: "API 供应导航" })).toBeInTheDocument();
+    expect(screen.getByText("API REGISTRY")).toBeInTheDocument();
     expect(screen.getByText("官方入口与多智能体 API 供应关系分开整理")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "智能体" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "多智能体 API" })).toBeInTheDocument();
@@ -31,11 +33,18 @@ describe("AgentDirectory", () => {
     expect(screen.queryByRole("button", { name: "有官方 API" })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "目录规则" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "快速对比" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "联系维护" })).toBeInTheDocument();
+    expect(screen.getByText("如有收录建议、链接失效或接入信息需要补充，可以通过邮箱联系我。")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "y_j-z@foxmail.com" })).toHaveAttribute("href", "mailto:y_j-z@foxmail.com");
     expect(screen.getByTestId("directory-search-panel")).toHaveClass("h-full");
     expect(screen.getByTestId("directory-stats-panel")).toHaveClass("h-full");
+    expect(screen.getByTestId("agent-card-codex")).toHaveClass("min-h-[340px]");
+    expect(screen.getByTestId("agent-header-codex")).toHaveClass("min-h-[72px]");
     expect(screen.getByTestId("agent-icon-codex")).toHaveClass("h-16", "w-16");
-    expect(screen.getByTestId("agent-summary-codex")).not.toHaveClass("min-h-12");
+    expect(screen.getByTestId("agent-summary-codex")).toHaveClass("min-h-[72px]", "line-clamp-3");
+    expect(screen.getByTestId("agent-channels-codex")).toHaveClass("min-h-[96px]");
     expect(screen.getByTestId("agent-links-codex")).toHaveClass("mt-auto", "pt-4");
+    expect(screen.getByTestId("agent-card-codex")).toHaveClass("border-l-4", "border-l-[#1d4ed8]");
   });
 
   it("keeps annotation workspace hidden until annotation mode is enabled", async () => {
@@ -74,6 +83,7 @@ describe("AgentDirectory", () => {
     expect(screen.getAllByText("GMN").length).toBeGreaterThan(0);
     expect(screen.getAllByText("CodeX CN").length).toBeGreaterThan(0);
     expect(screen.getByTestId("provider-card-asxs")).toHaveClass("min-h-[390px]");
+    expect(screen.getByTestId("provider-card-asxs")).toHaveClass("border-l-4", "border-l-[#b45309]");
     expect(screen.getByTestId("provider-summary-asxs")).not.toHaveClass("min-h-24");
     expect(screen.getByTestId("provider-support-asxs")).not.toHaveClass("min-h-[116px]");
     expect(screen.getByTestId("provider-links-asxs")).toHaveClass("mt-auto");
