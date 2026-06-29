@@ -23,16 +23,27 @@ type AnnotationDraft = {
   text: string;
 };
 
-const agentFilters: AgentChannelFilter[] = ["all", "china", "global"];
+const agentFilters: AgentChannelFilter[] = ["all", "official-login", "official-api", "china", "global"];
 const providerFilters: ProviderRegionFilter[] = ["all", "china", "global"];
 const contactEmail = "y_j-z@foxmail.com";
 const contactMessage = "如有收录建议、链接失效或接入信息需要补充，可以通过邮箱联系我。";
+
+function isAnnotationParameterEnabled() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const value = params.get("annotations") ?? params.get("annotate") ?? "";
+  return ["1", "true", "yes", "on"].includes(value.toLowerCase());
+}
 
 export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
   const [view, setView] = useState<DirectoryView>("agents");
   const [query, setQuery] = useState("");
   const [agentFilter, setAgentFilter] = useState<AgentChannelFilter>("all");
   const [providerFilter, setProviderFilter] = useState<ProviderRegionFilter>("all");
+  const [annotationsEnabled] = useState(isAnnotationParameterEnabled);
   const [annotationMode, setAnnotationMode] = useState(false);
   const [annotationDraft, setAnnotationDraft] = useState<AnnotationDraft | null>(null);
   const [annotationComment, setAnnotationComment] = useState("");
@@ -43,18 +54,28 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
   const visibleProviders = useMemo(() => filterProviders({ query, region: providerFilter }), [query, providerFilter]);
 
   const isAgentView = view === "agents";
+  const activeQuery = query.trim();
   const searchLabel = isAgentView ? "搜索 Agent" : "搜索多智能体 API";
-  const searchPlaceholder = isAgentView ? "搜索智能体、厂商或标签" : "搜索平台、支持的智能体 API 或标签";
+  const searchPlaceholder = isAgentView ? "搜索智能体、厂商或标签" : "搜索 API 平台、工作门户、支持的智能体或标签";
+
+  function switchView(nextView: DirectoryView) {
+    setView(nextView);
+    setQuery("");
+  }
 
   useEffect(() => {
+    if (!annotationsEnabled) {
+      return;
+    }
+
     fetch("/api/annotations")
       .then((response) => (response.ok ? response.json() : { annotations: [] }))
       .then((data) => setAnnotationCount(Array.isArray(data.annotations) ? data.annotations.length : 0))
       .catch(() => setAnnotationCount(0));
-  }, []);
+  }, [annotationsEnabled]);
 
   function handleAnnotationClick(event: React.MouseEvent<HTMLElement>) {
-    if (!annotationMode) {
+    if (!annotationsEnabled || !annotationMode) {
       return;
     }
 
@@ -110,57 +131,61 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
   }
 
   return (
-    <main data-testid="registry-shell" className={"min-h-screen bg-[#eef2f6] text-ink " + (annotationMode ? "cursor-crosshair" : "")} onClickCapture={handleAnnotationClick}>
-      <section className="border-b border-[#d8dee8] bg-[#f8fafc]/95 backdrop-blur">
-        <div className="mx-auto max-w-7xl space-y-4 px-4 py-6 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <main data-testid="registry-shell" className={"min-h-screen bg-[#08111f] text-[#dce7f3] " + (annotationsEnabled && annotationMode ? "cursor-crosshair" : "")} onClickCapture={handleAnnotationClick}>
+      <section className="border-b border-[#1d3345] bg-[#0b1626]/95 backdrop-blur">
+        <div className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-2">
-              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0f766e]">API REGISTRY</p>
-              <p className="text-sm font-semibold text-[#0f766e]">官方入口与多智能体 API 供应关系分开整理</p>
-              <h1 className="text-2xl font-semibold text-slate-950 sm:text-3xl">API 供应导航</h1>
-              <p className="max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">
-                把官方智能体入口和多智能体 API 平台拆开管理，便于快速确认官方渠道、支持范围和实际接入入口。
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#64e6c3]">SIGNAL REGISTRY</p>
+              <p className="text-sm font-semibold text-[#64e6c3]">智能体入口、API 平台和工作门户分层核验</p>
+              <h1 className="text-2xl font-semibold text-[#f3f7fb] sm:text-3xl">API 供应导航</h1>
+              <p className="max-w-3xl text-sm leading-6 text-[#9fb3c8] sm:text-base">
+                用一张可扫描的工程 registry 区分官方智能体、API 聚合平台和多智能体工作门户；每个入口保留来源、用途、支持范围和最近核验时间。
               </p>
             </div>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center" data-annotation-ui>
-              <button
-                type="button"
-                onClick={() => {
-                  setAnnotationMode((current) => !current);
-                  setAnnotationDraft(null);
-                }}
-                className={
-                  "inline-flex h-11 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-medium shadow-sm transition " +
-                  (annotationMode ? "border-[#0f766e] bg-[#ecfdf5] text-[#0f766e]" : "border-[#d8dee8] bg-white/90 text-slate-700 hover:border-[#0f766e] hover:text-[#0f766e]")
-                }
-              >
-                <MessageSquarePlus className="h-4 w-4" />
-                批注模式
-              </button>
-              <div className="inline-flex w-full rounded-lg border border-[#d8dee8] bg-white/90 p-1 shadow-[0_1px_2px_rgba(17,24,39,0.05)] sm:w-auto">
-                <ViewTab active={isAgentView} onClick={() => setView("agents")} icon={<Bot className="h-4 w-4" />} label="智能体" />
-                <ViewTab active={!isAgentView} onClick={() => setView("providers")} icon={<Building2 className="h-4 w-4" />} label="多智能体 API" />
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center" data-annotation-ui>
+              {annotationsEnabled ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAnnotationMode((current) => !current);
+                    setAnnotationDraft(null);
+                    setAnnotationStatus("");
+                  }}
+                  aria-pressed={annotationMode}
+                  className={
+                    "inline-flex h-10 items-center justify-center gap-2 rounded-md border px-3 text-sm font-medium transition " +
+                    (annotationMode ? "border-[#64e6c3] bg-[#112c35] text-[#dffdf4]" : "border-[#29445d] bg-transparent text-[#9fb3c8] hover:border-[#64e6c3] hover:text-[#dffdf4]")
+                  }
+                >
+                  <MessageSquarePlus className="h-4 w-4" />
+                  批注模式
+                </button>
+              ) : null}
+              <div className="inline-flex w-full rounded-md border border-[#29445d] bg-[#0f1b2b] p-1 shadow-[0_10px_30px_rgba(0,0,0,0.2)] sm:w-auto">
+                <ViewTab active={isAgentView} onClick={() => switchView("agents")} icon={<Bot className="h-4 w-4" />} label="智能体" />
+                <ViewTab active={!isAgentView} onClick={() => switchView("providers")} icon={<Building2 className="h-4 w-4" />} label="多智能体 API" />
               </div>
             </div>
           </div>
 
-          <div className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
-            <div data-testid="directory-search-panel" className="h-full rounded-lg border border-[#d8dee8] bg-white/95 p-3 shadow-[0_1px_2px_rgba(17,24,39,0.05)] sm:p-4">
+          <div className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
+            <div data-testid="directory-search-panel" className="h-full rounded-md border border-[#1d3345] bg-[#0d1929] p-3 shadow-[0_18px_45px_rgba(0,0,0,0.22)] sm:p-4">
               <div className="space-y-3">
-                <label className="relative block max-w-xl">
+                <label className="relative block max-w-2xl">
                   <span className="sr-only">{searchLabel}</span>
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f879f]" />
                   <input
                     aria-label={searchLabel}
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     placeholder={searchPlaceholder}
-                    className="h-11 w-full rounded-md border border-[#d8dee8] bg-white pl-10 pr-3 text-sm outline-none transition focus:border-[#0f766e] focus:ring-2 focus:ring-[#0f766e]/10"
+                    className="h-11 w-full rounded-md border border-[#29445d] bg-[#08111f] pl-10 pr-3 text-sm text-[#e6eef8] outline-none transition placeholder:text-[#6f879f] focus:border-[#64e6c3] focus:ring-2 focus:ring-[#64e6c3]/15"
                   />
                 </label>
 
-                <div className="flex items-center gap-2 overflow-x-auto rounded-md border border-[#d8dee8] bg-[#f5f7fa] p-1.5">
-                  <SlidersHorizontal className="ml-2 h-4 w-4 flex-none text-slate-400" />
+                <div className="flex items-center gap-2 overflow-x-auto rounded-md border border-[#1d3345] bg-[#08111f] p-1.5">
+                  <SlidersHorizontal className="ml-2 h-4 w-4 flex-none text-[#6f879f]" />
                   {isAgentView
                     ? agentFilters.map((option) => (
                         <FilterButton key={option} active={agentFilter === option} onClick={() => setAgentFilter(option)}>
@@ -173,10 +198,18 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                         </FilterButton>
                       ))}
                 </div>
+                {activeQuery ? (
+                  <div className="flex flex-wrap items-center gap-2 text-sm text-[#9fb3c8]">
+                    <span className="rounded-md bg-[#112c35] px-2.5 py-1 font-medium text-[#64e6c3]">正在搜索：{activeQuery}</span>
+                    <button type="button" onClick={() => setQuery("")} className="rounded-md border border-[#29445d] px-2.5 py-1 font-medium text-[#9fb3c8] transition hover:border-[#64e6c3] hover:text-[#dffdf4]">
+                      清除搜索
+                    </button>
+                  </div>
+                ) : null}
               </div>
             </div>
 
-            <div data-testid="directory-stats-panel" className="grid h-full grid-cols-3 gap-3 rounded-lg border border-[#d8dee8] bg-white/95 p-3 text-center shadow-[0_1px_2px_rgba(17,24,39,0.05)]">
+            <div data-testid="directory-stats-panel" className="grid h-full grid-cols-3 gap-3 rounded-md border border-[#1d3345] bg-[#0d1929] p-3 text-center shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
               {isAgentView ? (
                 <>
                   <Stat label="智能体" value={agentStats.total} />
@@ -185,8 +218,8 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                 </>
               ) : (
                 <>
-                  <Stat label="多智能体 API" value={providerStats.total} />
-                  <Stat label="国际" value={providerStats.global} />
+                  <Stat label="API/门户" value={providerStats.total} />
+                  <Stat label="工作门户" value={providerStats.agentPortals} />
                   <Stat label="国内" value={providerStats.china} />
                 </>
               )}
@@ -200,27 +233,31 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
           <div className="grid gap-4">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <h2 className="text-lg font-semibold text-slate-950 sm:text-xl">官方智能体</h2>
-                <p className="mt-1 text-sm text-slate-600">当前显示 {visibleAgents.length} 个智能体，只保留官方入口信息。</p>
+                <h2 className="text-lg font-semibold text-[#f3f7fb] sm:text-xl">官方智能体</h2>
+                <p className="mt-1 text-sm text-[#9fb3c8]">当前显示 {visibleAgents.length} 个智能体，只保留官方入口信息。</p>
               </div>
             </div>
 
             {visibleAgents.length > 0 ? (
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-2">
                 {visibleAgents.map((agent) => (
-                  <article key={agent.slug} data-testid={"agent-card-" + agent.slug} className={"flex min-h-[340px] flex-col overflow-hidden rounded-lg border border-[#d8dee8] border-l-4 bg-white/95 p-4 shadow-[0_1px_2px_rgba(17,24,39,0.05)] " + getAgentAccentClass(agent.region)}>
+                  <article key={agent.slug} data-testid={"agent-card-" + agent.slug} className={"flex min-h-[320px] flex-col overflow-hidden rounded-md border border-[#1d3345] border-l-4 bg-[#0d1929] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] transition hover:border-[#64e6c3]/60 " + getAgentAccentClass(agent.region)}>
                     <div data-testid={"agent-header-" + agent.slug} className="flex min-h-[72px] items-center gap-4">
                       <AgentIcon agent={agent} />
                       <div className="min-w-0 flex-1">
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-700">{agent.region === "china" ? "国内智能体" : "国际智能体"}</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-[#2d6a5f]">{agent.region === "china" ? "国内智能体" : "国际智能体"}</p>
                         <div className="mt-1 flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <h3 className="truncate text-lg font-semibold text-slate-950">{agent.name}</h3>
-                            <p className="mt-1 text-sm text-slate-500">{agent.vendor}</p>
+                            <h3 className="truncate text-lg font-semibold text-[#f3f7fb]">
+                              <Link href={"/agents/" + agent.slug} className="transition hover:text-[#2f5d8c] focus:outline-none focus:ring-2 focus:ring-[#2d6a5f]/20">
+                                {agent.name}
+                              </Link>
+                            </h3>
+                            <p className="mt-1 text-sm text-[#7f95ad]">{agent.vendor}</p>
                           </div>
                           <Link
                             href={"/agents/" + agent.slug}
-                            className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-md border border-[#d8dee8] text-slate-600 transition hover:border-[#1d4ed8] hover:text-[#1d4ed8]"
+                            className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-md border border-[#1d3345] text-[#9fb3c8] transition hover:border-[#64e6c3] hover:text-[#dffdf4]"
                             aria-label={"查看 " + agent.name + " 详情"}
                           >
                             <ArrowUpRight className="h-4 w-4" />
@@ -229,7 +266,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                       </div>
                     </div>
 
-                    <p data-testid={"agent-summary-" + agent.slug} className="mt-4 min-h-[72px] line-clamp-3 text-sm leading-6 text-slate-600">{agent.summary}</p>
+                    <p data-testid={"agent-summary-" + agent.slug} className="mt-4 min-h-[72px] line-clamp-3 text-sm leading-6 text-[#9fb3c8]">{agent.summary}</p>
 
                     <div data-testid={"agent-channels-" + agent.slug} className="mt-4 grid min-h-[96px] gap-2 sm:grid-cols-2">
                       <ChannelSummary icon={<LogIn className="h-4 w-4" />} title="官方登录" value={agent.officialLogin?.name} fallback="暂无官方登录入口" />
@@ -249,23 +286,23 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
           </div>
 
           <aside className="space-y-4">
-            <InfoPanel icon={<Layers3 className="h-4 w-4 text-teal-700" />} title="目录规则">
+            <InfoPanel icon={<Layers3 className="h-4 w-4 text-[#2d6a5f]" />} title="目录规则">
               智能体卡片只保留官方登录与官方 API。多智能体 API 平台已经单独拆出，不再混在智能体条目里重复出现。
             </InfoPanel>
-            <InfoPanel icon={<Check className="h-4 w-4 text-teal-700" />} title="快速对比">
-              <div className="mt-4 overflow-hidden rounded-md border border-[#d8dee8]">
+            <InfoPanel icon={<Check className="h-4 w-4 text-[#2d6a5f]" />} title="快速对比">
+              <div className="mt-4 overflow-hidden rounded-md border border-[#1d3345]">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-[#f5f7fa] font-mono text-xs font-semibold text-slate-500">
+                  <thead className="bg-[#0a1422] font-mono text-xs font-semibold text-[#7f95ad]">
                     <tr>
                       <th className="px-3 py-2">智能体</th>
                       <th className="px-3 py-2">官方获取方式</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  <tbody className="divide-y divide-[#dbe2de]">
                     {visibleAgents.map((agent) => (
                       <tr key={agent.slug}>
-                        <td className="px-3 py-3 font-medium text-slate-900">{agent.name}</td>
-                        <td className="px-3 py-3 text-slate-600">{[agent.officialLogin ? "登录" : null, agent.officialApi ? "官方 API" : null].filter(Boolean).join(" / ")}</td>
+                        <td className="px-3 py-3 font-medium text-[#f3f7fb]">{agent.name}</td>
+                        <td className="px-3 py-3 text-[#9fb3c8]">{[agent.officialLogin ? "登录" : null, agent.officialApi ? "官方 API" : null].filter(Boolean).join(" / ")}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -279,8 +316,8 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
         <section className="mx-auto grid max-w-7xl gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:px-8">
           <div className="grid gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950 sm:text-xl">多智能体 API</h2>
-              <p className="mt-1 text-sm text-slate-600">当前显示 {visibleProviders.length} 个平台，只包含支持 2 个及以上智能体 API 的平台。</p>
+              <h2 className="text-lg font-semibold text-[#f3f7fb] sm:text-xl">多智能体 API 与工作门户</h2>
+              <p className="mt-1 text-sm text-[#9fb3c8]">当前显示 {visibleProviders.length} 个门户，只包含已核验的 API 平台和工作门户。</p>
             </div>
 
             {visibleProviders.length > 0 ? (
@@ -289,30 +326,35 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                   <article
                     key={provider.slug}
                     data-testid={"provider-card-" + provider.slug}
-                    className={"flex min-h-[390px] flex-col overflow-hidden rounded-lg border border-[#d8dee8] border-l-4 bg-white/95 p-4 shadow-[0_1px_2px_rgba(17,24,39,0.05)] " + getProviderAccentClass(provider)}
+                    className={"flex min-h-[360px] flex-col overflow-hidden rounded-md border border-[#1d3345] border-l-4 bg-[#0d1929] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] transition hover:border-[#64e6c3]/60 " + getProviderAccentClass(provider)}
                   >
                     <div className="flex min-h-20 items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-700">{provider.region === "china" ? "国内多智能体 API" : "国际多智能体 API"}</p>
-                        <h3 className="mt-1 text-lg font-semibold text-slate-950">{provider.name}</h3>
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-[#64e6c3]">{getProviderKindLabel(provider)} · {provider.region === "china" ? "国内" : "国际"}</p>
+                        <h3 className="mt-1 text-lg font-semibold text-[#f3f7fb]">
+                          <Link href={"/providers/" + provider.slug} className="transition hover:text-[#2f5d8c] focus:outline-none focus:ring-2 focus:ring-[#2d6a5f]/20">
+                            {provider.name}
+                          </Link>
+                        </h3>
                         <div className="mt-2 flex flex-wrap items-center gap-2">
-                          <p className="text-sm text-slate-500">{provider.vendor}</p>
+                          <p className="text-sm text-[#7f95ad]">{provider.vendor}</p>
+                          <ProviderKindBadge provider={provider} />
                           <RelayBadge isPureRelay={provider.isPureRelay} />
                         </div>
                       </div>
                       <Link
                         href={"/providers/" + provider.slug}
-                        className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:border-teal-600 hover:text-teal-700"
+                        className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-md border border-[#1d3345] text-[#9fb3c8] transition hover:border-[#64e6c3] hover:text-[#dffdf4]"
                         aria-label={"查看 " + provider.name + " 详情"}
                       >
                         <ArrowUpRight className="h-4 w-4" />
                       </Link>
                     </div>
 
-                    <p data-testid={"provider-summary-" + provider.slug} className="mt-4 text-sm leading-6 text-slate-600">{provider.summary}</p>
+                    <p data-testid={"provider-summary-" + provider.slug} className="mt-4 text-sm leading-6 text-[#9fb3c8]">{provider.summary}</p>
 
-                    <div data-testid={"provider-support-" + provider.slug} className="mt-4 rounded-md border border-[#d8dee8] bg-[#f5f7fa] p-3">
-                      <div className="text-xs font-semibold text-slate-500">支持智能体 API</div>
+                    <div data-testid={"provider-support-" + provider.slug} className="mt-4 rounded-md border border-[#1d3345] bg-[#0a1422] p-3">
+                      <div className="text-xs font-semibold text-[#7f95ad]">{provider.kind === "agent-portal" ? "支持智能体工作流" : "支持智能体 API"}</div>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {getProviderSupportLabels(provider, agents).map((label) => (
                           <SupportBadge key={label} label={label} />
@@ -320,7 +362,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                       </div>
                     </div>
 
-                    <ProviderNotes provider={provider} className="mt-4 text-sm leading-6 text-slate-600" />
+                    <ProviderNotes provider={provider} className="mt-4 text-sm leading-6 text-[#9fb3c8]" />
 
                     <div data-testid={"provider-links-" + provider.slug} className="mt-auto flex flex-wrap gap-2 pt-4">
                       {provider.consoleUrl ? <ExternalLink href={provider.consoleUrl}>网站地址</ExternalLink> : null}
@@ -335,23 +377,23 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
           </div>
 
           <aside className="space-y-4">
-            <InfoPanel icon={<Building2 className="h-4 w-4 text-teal-700" />} title="多智能体 API 说明">
-              多智能体 API 页面只收录支持 2 个及以上智能体 API 的平台，并显式标注是否为中转站。
+            <InfoPanel icon={<Building2 className="h-4 w-4 text-[#2d6a5f]" />} title="多智能体 API 说明">
+              该页面分开记录两类入口：可调用多家模型或智能体 API 的平台，以及能调度多个 coding agent / MCP 工作流的工作门户。
             </InfoPanel>
-            <InfoPanel icon={<Check className="h-4 w-4 text-teal-700" />} title="覆盖范围">
-              <div className="mt-4 overflow-hidden rounded-lg border border-slate-200">
+            <InfoPanel icon={<Check className="h-4 w-4 text-[#2d6a5f]" />} title="覆盖范围">
+              <div className="mt-4 overflow-hidden rounded-md border border-[#1d3345]">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50 text-xs font-semibold text-slate-500">
+                  <thead className="bg-[#0a1422] text-xs font-semibold text-[#7f95ad]">
                     <tr>
                       <th className="px-3 py-2">平台</th>
-                      <th className="px-3 py-2">支持智能体 API</th>
+                      <th className="px-3 py-2">支持范围</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  <tbody className="divide-y divide-[#dbe2de]">
                     {visibleProviders.map((provider) => (
                       <tr key={provider.slug}>
-                        <td className="px-3 py-3 font-medium text-slate-900">{provider.name}</td>
-                        <td className="px-3 py-3 text-slate-600">
+                        <td className="px-3 py-3 font-medium text-[#f3f7fb]">{provider.name}</td>
+                        <td className="px-3 py-3 text-[#9fb3c8]">
                           {getProviderSupportLabels(provider, agents).join(" / ")}
                         </td>
                       </tr>
@@ -365,16 +407,18 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
         </section>
       )}
 
-      <AnnotationWorkspace
-        draft={annotationDraft}
-        comment={annotationComment}
-        count={annotationCount}
-        mode={annotationMode}
-        status={annotationStatus}
-        onCommentChange={setAnnotationComment}
-        onClose={() => setAnnotationDraft(null)}
-        onSave={saveAnnotation}
-      />
+      {annotationsEnabled ? (
+        <AnnotationWorkspace
+          draft={annotationDraft}
+          comment={annotationComment}
+          count={annotationCount}
+          mode={annotationMode}
+          status={annotationStatus}
+          onCommentChange={setAnnotationComment}
+          onClose={() => setAnnotationDraft(null)}
+          onSave={saveAnnotation}
+        />
+      ) : null}
     </main>
   );
 }
@@ -396,15 +440,19 @@ function getProviderSupportLabels(provider: ProviderProfile, agentProfiles: Agen
 }
 
 function getAgentAccentClass(region: AgentProfile["region"]) {
-  return region === "china" ? "border-l-[#0f766e]" : "border-l-[#1d4ed8]";
+  return region === "china" ? "border-l-[#64e6c3]" : "border-l-[#4ea2ff]";
 }
 
 function getProviderAccentClass(provider: ProviderProfile) {
   if (provider.isPureRelay) {
-    return "border-l-[#b45309]";
+    return "border-l-[#f0b35a]";
   }
 
-  return provider.region === "china" ? "border-l-[#0f766e]" : "border-l-[#1d4ed8]";
+  if (provider.kind === "agent-portal") {
+    return "border-l-[#8bb8ff]";
+  }
+
+  return provider.region === "china" ? "border-l-[#64e6c3]" : "border-l-[#4ea2ff]";
 }
 
 function ProviderNotes({ provider, className }: { provider: ProviderProfile; className?: string }) {
@@ -417,7 +465,7 @@ function ProviderNotes({ provider, className }: { provider: ProviderProfile; cla
   return (
     <p className={className}>
       {before}
-      <strong className="font-semibold text-slate-900">{provider.notesHighlight}</strong>
+      <strong className="font-semibold text-[#f3f7fb]">{provider.notesHighlight}</strong>
       {after}
     </p>
   );
@@ -448,39 +496,39 @@ function AnnotationWorkspace({
 
   return (
     <div data-annotation-ui className="fixed bottom-4 right-4 z-50 w-[calc(100vw-2rem)] max-w-sm space-y-3 sm:bottom-6 sm:right-6">
-      <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-xl">
+      <div className="rounded-xl border border-[#1d3345] bg-[#0d1929] p-3 shadow-xl">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-slate-950">页面批注</p>
-            <p className="mt-1 text-xs text-slate-500">{mode ? "点击页面任意区域后写修改意见" : "打开批注模式后开始标注"}</p>
+            <p className="text-sm font-semibold text-[#f3f7fb]">页面批注</p>
+            <p className="mt-1 text-xs text-[#7f95ad]">{mode ? "点击页面任意区域后写修改意见" : "打开批注模式后开始标注"}</p>
           </div>
-          <div className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">{count}</div>
+          <div className="rounded-md bg-[#0a1422] px-2 py-1 text-xs font-medium text-[#9fb3c8]">{count}</div>
         </div>
-        {status ? <p className="mt-2 text-xs font-medium text-teal-700">{status}</p> : null}
+        {status ? <p className="mt-2 text-xs font-medium text-[#2d6a5f]">{status}</p> : null}
       </div>
 
       {draft ? (
-        <div className="rounded-xl border border-teal-200 bg-white p-3 shadow-xl">
+        <div className="rounded-xl border border-teal-200 bg-[#0d1929] p-3 shadow-xl">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold text-teal-700">已选区域</p>
-              <p className="mt-1 text-sm font-medium text-slate-950">{draft.target}</p>
-              {draft.text ? <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">{draft.text}</p> : null}
+              <p className="text-xs font-semibold text-[#2d6a5f]">已选区域</p>
+              <p className="mt-1 text-sm font-medium text-[#f3f7fb]">{draft.target}</p>
+              {draft.text ? <p className="mt-1 line-clamp-2 text-xs leading-5 text-[#7f95ad]">{draft.text}</p> : null}
             </div>
-            <button type="button" onClick={onClose} className="inline-flex h-8 w-8 flex-none items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-900" aria-label="关闭批注">
+            <button type="button" onClick={onClose} className="inline-flex h-8 w-8 flex-none items-center justify-center rounded-md text-[#7f95ad] transition hover:bg-[#12243a] hover:text-[#f3f7fb]" aria-label="关闭批注">
               <X className="h-4 w-4" />
             </button>
           </div>
 
           <label className="block">
-            <span className="text-xs font-medium text-slate-700">修改意见</span>
+            <span className="text-xs font-medium text-[#c7d6e6]">修改意见</span>
             <textarea
               value={comment}
               onChange={(event) => onCommentChange(event.target.value)}
               rows={4}
               autoFocus
               placeholder="直接写这里需要怎么改"
-              className="mt-1 w-full resize-none rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+              className="mt-1 w-full resize-none rounded-md border border-[#29445d] bg-[#0d1929] px-3 py-2 text-sm outline-none transition focus:border-[#64e6c3] focus:ring-2 focus:ring-[#64e6c3]/15"
             />
           </label>
 
@@ -488,7 +536,7 @@ function AnnotationWorkspace({
             type="button"
             onClick={onSave}
             disabled={!comment.trim()}
-            className="mt-3 inline-flex h-9 w-full items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+            className="mt-3 inline-flex h-9 w-full items-center justify-center gap-2 rounded-md bg-[#64e6c3] px-3 text-sm font-semibold text-[#05131d] transition hover:bg-[#8df3d7] disabled:cursor-not-allowed disabled:bg-[#29445d] disabled:text-[#7f95ad]"
           >
             <Save className="h-4 w-4" />
             保存到项目批注
@@ -504,9 +552,10 @@ function ViewTab({ active, onClick, icon, label }: { active: boolean; onClick: (
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={
         "inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition sm:min-w-[140px] " +
-        (active ? "bg-slate-950 text-white shadow-sm" : "text-slate-600 hover:bg-slate-50")
+        (active ? "bg-[#64e6c3] text-[#05131d] shadow-sm" : "text-[#9fb3c8] hover:bg-[#12243a]")
       }
     >
       {icon}
@@ -520,9 +569,10 @@ function FilterButton({ active, onClick, children }: { active: boolean; onClick:
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={
         "h-8 flex-none rounded-md px-3 text-sm font-medium transition " +
-        (active ? "bg-slate-950 text-white shadow-sm" : "text-slate-600 hover:bg-white")
+        (active ? "bg-[#64e6c3] text-[#05131d] shadow-sm" : "text-[#9fb3c8] hover:bg-[#12243a]")
       }
     >
       {children}
@@ -532,16 +582,16 @@ function FilterButton({ active, onClick, children }: { active: boolean; onClick:
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-md border border-[#d8dee8] bg-[#f5f7fa] px-2 py-3">
-      <div className="text-2xl font-semibold text-slate-950">{value}</div>
-      <div className="mt-1 text-xs text-slate-500">{label}</div>
+    <div className="rounded-md border border-[#1d3345] bg-[#0a1422] px-2 py-3">
+      <div className="text-2xl font-semibold text-[#f3f7fb]">{value}</div>
+      <div className="mt-1 text-xs text-[#9fb3c8]">{label}</div>
     </div>
   );
 }
 
 function AgentIcon({ agent }: { agent: AgentProfile }) {
   return (
-    <div data-testid={"agent-icon-" + agent.slug} className="h-16 w-16 flex-none overflow-hidden rounded-md border border-[#d8dee8] bg-white">
+    <div data-testid={"agent-icon-" + agent.slug} className="h-16 w-16 flex-none overflow-hidden rounded-md border border-[#1d3345] bg-[#0d1929]">
       <div
         aria-hidden="true"
         className="h-full w-full bg-[url('/agent-icons/agent-icon-set.png')] bg-[length:400%_200%]"
@@ -553,13 +603,28 @@ function AgentIcon({ agent }: { agent: AgentProfile }) {
 
 function ChannelSummary({ icon, title, value, fallback }: { icon: React.ReactNode; title: string; value?: string; fallback: string }) {
   return (
-    <div className="flex min-h-[96px] flex-col justify-between rounded-md border border-[#d8dee8] bg-[#f5f7fa] p-3">
-      <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+    <div className="flex min-h-[96px] flex-col justify-between rounded-md border border-[#1d3345] bg-[#0a1422] p-3">
+      <div className="flex items-center gap-2 text-xs font-semibold text-[#7f95ad]">
         {icon}
         <span>{title}</span>
       </div>
-      <p className={"mt-1 text-sm leading-5 " + (value ? "font-medium text-slate-900" : "text-slate-500")}>{value ?? fallback}</p>
+      <p className={"mt-1 text-sm leading-5 " + (value ? "font-medium text-[#f3f7fb]" : "text-[#7f95ad]")}>{value ?? fallback}</p>
     </div>
+  );
+}
+
+
+function getProviderKindLabel(provider: ProviderProfile) {
+  return provider.kind === "agent-portal" ? "工作门户" : "API 平台";
+}
+
+function ProviderKindBadge({ provider }: { provider: ProviderProfile }) {
+  const isPortal = provider.kind === "agent-portal";
+
+  return (
+    <span className={"inline-flex h-7 items-center rounded-md border px-2.5 text-xs font-semibold " + (isPortal ? "border-[#8bb8ff]/60 bg-[#10223d] text-[#cfe0ff]" : "border-[#64e6c3]/50 bg-[#102a30] text-[#dffdf4]")}>
+      {isPortal ? "工作门户" : "API 平台"}
+    </span>
   );
 }
 
@@ -569,33 +634,33 @@ function RelayBadge({ isPureRelay }: { isPureRelay: boolean }) {
   }
 
   return (
-    <span className="inline-flex h-7 items-center rounded-md border border-[#f0c36a] bg-[#fff7e6] px-2.5 text-xs font-semibold text-[#b45309]">
+    <span className="inline-flex h-7 items-center rounded-md border border-[#f0b35a]/60 bg-[#2a2114] px-2.5 text-xs font-semibold text-[#ffd089]">
       中转站
     </span>
   );
 }
 
 function SupportBadge({ label }: { label: string }) {
-  return <span className="inline-flex h-7 items-center rounded-md border border-[#d8dee8] bg-white px-2.5 text-sm text-slate-700">{label}</span>;
+  return <span className="inline-flex h-7 items-center rounded-md border border-[#1d3345] bg-[#0d1929] px-2.5 text-sm text-[#c7d6e6]">{label}</span>;
 }
 
 function InfoPanel({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-[#d8dee8] bg-white/95 p-4 shadow-[0_1px_2px_rgba(17,24,39,0.05)]">
+    <div className="rounded-md border border-[#1d3345] bg-[#0d1929] p-4 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
       <div className="flex items-center gap-2">
         {icon}
-        <h3 className="text-base font-semibold text-slate-950">{title}</h3>
+        <h3 className="text-base font-semibold text-[#f3f7fb]">{title}</h3>
       </div>
-      <div className="mt-3 text-sm leading-6 text-slate-600">{children}</div>
+      <div className="mt-3 text-sm leading-6 text-[#9fb3c8]">{children}</div>
     </div>
   );
 }
 
 function ContactPanel() {
   return (
-    <InfoPanel icon={<Mail className="h-4 w-4 text-teal-700" />} title="联系维护">
+    <InfoPanel icon={<Mail className="h-4 w-4 text-[#2d6a5f]" />} title="联系维护">
       <p>{contactMessage}</p>
-      <a href={"mailto:" + contactEmail} className="mt-3 inline-flex h-9 items-center rounded-md border border-[#d8dee8] bg-white px-3 font-medium text-slate-700 transition hover:border-[#1d4ed8] hover:text-[#1d4ed8]">
+      <a href={"mailto:" + contactEmail} className="mt-3 inline-flex h-9 items-center rounded-md border border-[#1d3345] bg-[#0d1929] px-3 font-medium text-[#c7d6e6] transition hover:border-[#64e6c3] hover:text-[#dffdf4]">
         {contactEmail}
       </a>
     </InfoPanel>
@@ -604,9 +669,9 @@ function ContactPanel() {
 
 function EmptyState({ title, description }: { title: string; description: string }) {
   return (
-    <div className="rounded-lg border border-dashed border-[#aeb8c6] bg-white/90 px-6 py-10 text-center shadow-[0_1px_2px_rgba(17,24,39,0.05)]">
-      <h3 className="text-base font-semibold text-slate-950">{title}</h3>
-      <p className="mt-2 text-sm text-slate-600">{description}</p>
+    <div className="rounded-lg border border-dashed border-[#aeb8c6] bg-[#0d1929]/90 px-6 py-10 text-center shadow-[0_1px_2px_rgba(17,24,39,0.05)]">
+      <h3 className="text-base font-semibold text-[#f3f7fb]">{title}</h3>
+      <p className="mt-2 text-sm text-[#9fb3c8]">{description}</p>
     </div>
   );
 }
@@ -617,7 +682,7 @@ function ExternalLink({ href, children }: { href: string; children: React.ReactN
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex h-9 items-center gap-1 rounded-md border border-[#d8dee8] bg-white px-3 text-sm font-medium text-slate-700 transition hover:border-[#1d4ed8] hover:text-[#1d4ed8]"
+      className="inline-flex h-9 items-center gap-1 rounded-md border border-[#1d3345] bg-[#0d1929] px-3 text-sm font-medium text-[#c7d6e6] transition hover:border-[#64e6c3] hover:text-[#dffdf4]"
     >
       {children}
       <ArrowUpRight className="h-3.5 w-3.5" />

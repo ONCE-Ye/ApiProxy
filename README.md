@@ -6,7 +6,7 @@
 
 - `智能体`：只展示官方登录入口、官方 API、基础说明
 - `多智能体 API`：单独展示支持 2 个及以上智能体 API 的平台、支持范围、中转站标签、网站地址与文档入口
-- `页面批注`：浏览器内开启批注模式后，可直接点击页面区域写修改意见，保存到本地 `.annotations/page-notes.json`
+- `页面批注`：默认关闭；访问带 `?annotations=1` 参数的页面后，可手动开启批注模式并保存到本地 `.annotations/page-notes.json`
 - 搜索与筛选：按名称、标签、区域快速过滤
 - 详情页：分别提供智能体详情页和多智能体 API 平台详情页
 
@@ -31,6 +31,14 @@ npm run dev -- -H 0.0.0.0 -p 3004
 
 - `http://localhost:3004`
 
+确认服务是否已启动：
+
+```bash
+curl -I http://localhost:3004
+```
+
+返回 `HTTP/1.1 200 OK` 即可在浏览器打开。如果浏览器打不开，先确认终端里的 `npm run dev -- -H 0.0.0.0 -p 3004` 仍在运行；如果服务已退出，重新执行上面的 3004 端口启动命令。
+
 常用命令：
 
 ```bash
@@ -39,7 +47,23 @@ npm run lint    # 代码检查
 npm test        # Vitest 测试
 ```
 
-注意：不要在 `npm run dev` 正在运行时直接执行 `npm run build`。Next.js 的 `.next` 开发缓存和生产构建产物可能互相覆盖，导致页面 chunk 404 或 API 路由临时 404。需要构建时，先停止 dev server；若页面异常，删除 `.next` 后重新启动 dev server。
+注意：不要在 `npm run dev` 正在运行时直接执行 `npm run build`。Next.js 的 `.next` 开发缓存和生产构建产物可能互相覆盖，导致页面 chunk 404、页面 500 或 API 路由临时 404。需要构建时，先停止 dev server。
+
+如果 `http://localhost:3004` 返回 500，或页面报类似 `Cannot find module './xxx.js'` 的 chunk 缺失错误，按下面步骤重启：
+
+```bash
+# 1. 停止正在运行的 dev server：在运行 npm run dev 的终端按 Ctrl+C
+
+# 2. 清理 Next.js 缓存
+rm -rf .next
+
+# 3. 重新启动
+npm run dev -- -H 0.0.0.0 -p 3004
+```
+
+重新启动后再打开：
+
+- `http://localhost:3004`
 
 ## 项目结构
 
@@ -71,10 +95,11 @@ docs/                设计与实现记录
 
 ## 批注工作流
 
-1. 在浏览器打开页面，点击右上角 `批注模式`。
-2. 点击需要修改的区域，直接填写修改意见。
-3. 点击 `保存到项目批注`，批注会写入 `.annotations/page-notes.json`。
-4. `.annotations/` 已加入 `.gitignore`，批注只作为本地协作输入，不提交到仓库。
+1. 默认页面不显示批注入口。需要批注时，打开带参数的地址，例如 `http://localhost:3004/?annotations=1`。
+2. 点击右上角 `批注模式`，手动进入批注状态。
+3. 点击需要修改的区域，直接填写修改意见。
+4. 点击 `保存到项目批注`，批注会写入 `.annotations/page-notes.json`。
+5. `.annotations/` 已加入 `.gitignore`，批注只作为本地协作输入，不提交到仓库。
 
 如果保存失败，先确认 `app/api/annotations/route.ts` 是否被 dev server 正确识别。常见修复方式是停止 dev server、删除 `.next`、重新执行 `npm run dev -- -H 0.0.0.0 -p 3004`。
 

@@ -42,22 +42,22 @@ export default function ProviderPage({ params }: ProviderPageProps) {
     : supportedAgents.map((agent) => agent.name);
 
   return (
-    <main className="min-h-screen bg-slate-100 text-ink">
-      <section className="border-b border-slate-200 bg-slate-50/80">
+    <main className="min-h-screen bg-[#f3f5f4] text-ink">
+      <section className="border-b border-[#cfd8d3] bg-[#fbfcfb]/95">
         <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-teal-700">
+          <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-[#5b6761] hover:text-[#2d6a5f]">
             <ArrowLeft className="h-4 w-4" />
             返回目录
           </Link>
           <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
-              <p className="text-sm font-semibold text-teal-700">{provider.region === "china" ? "国内多智能体 API" : "国际多智能体 API"}</p>
-              <h1 className="mt-2 text-3xl font-semibold text-slate-950">{provider.name}</h1>
+              <p className="text-sm font-semibold text-[#2d6a5f]">{provider.region === "china" ? "国内多智能体 API" : "国际多智能体 API"}</p>
+              <h1 className="mt-2 text-3xl font-semibold text-[#17211d]">{provider.name}</h1>
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <p className="text-base font-medium text-slate-500">{provider.vendor}</p>
+                <p className="text-base font-medium text-[#6a756f]">{provider.vendor}</p>
                 <RelayBadge isPureRelay={provider.isPureRelay} />
               </div>
-              <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">{provider.summary}</p>
+              <p className="mt-4 max-w-3xl text-base leading-7 text-[#5b6761]">{provider.summary}</p>
             </div>
             <div className="flex flex-wrap gap-2">
               {provider.consoleUrl ? <ExternalLink href={provider.consoleUrl}>网站地址</ExternalLink> : null}
@@ -80,17 +80,17 @@ export default function ProviderPage({ params }: ProviderPageProps) {
           </InfoCard>
         </div>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="text-base font-semibold text-slate-950">支持的智能体 API</h2>
+        <section className="rounded-md border border-[#cfd8d3] bg-white p-4 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+          <h2 className="text-base font-semibold text-[#17211d]">支持的智能体 API</h2>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {supportLabels.map((label) => {
               const agent = agents.find((item) => item.name === label || item.slug === label.toLowerCase());
 
               if (!agent) {
                 return (
-                  <div key={label} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                    <div className="text-sm font-semibold text-slate-950">{label}</div>
-                    <div className="mt-1 text-sm text-slate-600">以平台控制台支持范围为准</div>
+                  <div key={label} className="rounded-md border border-[#cfd8d3] bg-[#f3f5f4] p-4">
+                    <div className="text-sm font-semibold text-[#17211d]">{label}</div>
+                    <div className="mt-1 text-sm text-[#5b6761]">以平台控制台支持范围为准</div>
                   </div>
                 );
               }
@@ -99,13 +99,13 @@ export default function ProviderPage({ params }: ProviderPageProps) {
                 <Link
                   key={agent.slug}
                   href={"/agents/" + agent.slug}
-                  className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-4 hover:border-teal-600"
+                  className="flex items-center justify-between rounded-md border border-[#cfd8d3] bg-[#f3f5f4] p-4 hover:border-[#2d6a5f]"
                 >
                   <div>
-                    <div className="text-sm font-semibold text-slate-950">{agent.name}</div>
-                    <div className="mt-1 text-sm text-slate-600">{agent.vendor}</div>
+                    <div className="text-sm font-semibold text-[#17211d]">{agent.name}</div>
+                    <div className="mt-1 text-sm text-[#5b6761]">{agent.vendor}</div>
                   </div>
-                  <ArrowUpRight className="h-4 w-4 text-slate-500" />
+                  <ArrowUpRight className="h-4 w-4 text-[#6a756f]" />
                 </Link>
               );
             })}
@@ -138,7 +138,7 @@ function ProviderNotes({ notes, highlight }: { notes: string; highlight?: string
   return (
     <>
       {before}
-      <strong className="font-semibold text-slate-900">{highlight}</strong>
+      <strong className="font-semibold text-[#17211d]">{highlight}</strong>
       {after}
     </>
   );
@@ -146,12 +146,12 @@ function ProviderNotes({ notes, highlight }: { notes: string; highlight?: string
 
 function InfoCard({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="flex items-center gap-2 text-teal-700">
+    <section className="rounded-md border border-[#cfd8d3] bg-white p-4 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+      <div className="flex items-center gap-2 text-[#2d6a5f]">
         {icon}
-        <h2 className="text-base font-semibold text-slate-950">{title}</h2>
+        <h2 className="text-base font-semibold text-[#17211d]">{title}</h2>
       </div>
-      <p className="mt-4 text-sm leading-6 text-slate-600">{children}</p>
+      <p className="mt-4 text-sm leading-6 text-[#5b6761]">{children}</p>
     </section>
   );
 }
@@ -162,7 +162,7 @@ function ExternalLink({ href, children }: { href: string; children: React.ReactN
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex h-9 w-fit items-center gap-1 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-700 hover:border-teal-600 hover:text-teal-700"
+      className="inline-flex h-9 w-fit items-center gap-1 rounded-md border border-[#cfd8d3] px-3 text-sm font-medium text-[#4e5a55] hover:border-[#2d6a5f] hover:text-[#2d6a5f]"
     >
       {children}
       <ArrowUpRight className="h-3.5 w-3.5" />

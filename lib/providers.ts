@@ -7,7 +7,7 @@ export type ProviderFilter = {
 };
 
 export function isMultiAgentApiProvider(provider: ProviderProfile) {
-  return provider.supportedAgentSlugs.length >= 2;
+  return provider.kind === "agent-portal" || provider.supportedAgentSlugs.length >= 2;
 }
 
 export const multiAgentApiProviders = providers
@@ -38,6 +38,7 @@ export function filterProviders({ query = "", region = "all" }: ProviderFilter =
       provider.region,
       provider.summary,
       provider.notes,
+      provider.kind === "agent-portal" ? "工作门户 agent portal workflow hub" : "API 平台 multi-agent api platform",
       provider.isPureRelay ? "中转站 纯中转站 relay aggregator" : "非纯中转站 自有智能体 平台",
       ...provider.tags,
       ...(provider.supportedApiLabels ?? []),
@@ -58,5 +59,7 @@ export function getProviderBySlug(slug: string) {
 export const providerStats = {
   total: multiAgentApiProviders.length,
   global: multiAgentApiProviders.filter((provider) => provider.region === "global").length,
-  china: multiAgentApiProviders.filter((provider) => provider.region === "china").length
+  china: multiAgentApiProviders.filter((provider) => provider.region === "china").length,
+  apiPlatforms: multiAgentApiProviders.filter((provider) => (provider.kind ?? "api-platform") === "api-platform").length,
+  agentPortals: multiAgentApiProviders.filter((provider) => provider.kind === "agent-portal").length
 };

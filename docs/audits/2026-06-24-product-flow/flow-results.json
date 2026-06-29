@@ -1,0 +1,57 @@
+{
+  "baseUrl": "http://127.0.0.1:3004",
+  "steps": [
+    {
+      "name": "home-agents",
+      "screenshot": "docs/audits/2026-06-24-product-flow/screenshots/01-home-agents.png",
+      "visibleAgents": 8,
+      "hasAnnotationButton": true
+    },
+    {
+      "name": "agent-search-codex",
+      "screenshot": "docs/audits/2026-06-24-product-flow/screenshots/02-agent-search-codex.png",
+      "visibleAgents": 1,
+      "hasCodex": true
+    },
+    {
+      "name": "agent-detail-codex",
+      "screenshot": "docs/audits/2026-06-24-product-flow/screenshots/03-agent-detail-codex.png",
+      "url": "/agents/codex",
+      "hasBackLink": true
+    },
+    {
+      "name": "providers-tab",
+      "screenshot": "docs/audits/2026-06-24-product-flow/screenshots/04-providers-tab.png",
+      "visibleProviders": 7,
+      "hasRelayBadge": true
+    },
+    {
+      "name": "provider-detail",
+      "screenshot": "docs/audits/2026-06-24-product-flow/screenshots/05-provider-detail.png",
+      "url": "/providers/bailian",
+      "hasSupportSection": true
+    },
+    {
+      "name": "provider-search-deepseek",
+      "screenshot": "docs/audits/2026-06-24-product-flow/screenshots/06-provider-search-deepseek.png",
+      "visibleProviders": 4,
+      "hasEmptyState": false
+    },
+    {
+      "name": "annotation-draft",
+      "screenshot": "docs/audits/2026-06-24-product-flow/screenshots/07-annotation-draft.png",
+      "hasDraft": true
+    },
+    {
+      "name": "annotation-saved",
+      "screenshot": "docs/audits/2026-06-24-product-flow/screenshots/08-annotation-saved.png",
+      "hasSavedStatus": true
+    }
+  ],
+  "checks": {
+    "apiAgentsCount": 8,
+    "apiProvidersCount": 7,
+    "apiAnnotationsCount": 21,
+    "screenshotsNonEmpty": true
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "steps": [
+    {
+      "name": "mobile-home-agents",
+      "screenshot": "docs/audits/2026-06-24-product-flow/screenshots/09-mobile-home-agents.png",
+      "visibleAgents": 8,
+      "hasHero": true,
+      "hasOfficialApiFilter": true
+    },
+    {
+      "name": "mobile-providers-tab",
+      "screenshot": "docs/audits/2026-06-24-product-flow/screenshots/10-mobile-providers-tab.png",
+      "visibleProviders": 7,
+      "hasStats": true
+    }
+  ],
+  "screenshotsNonEmpty": true
+}
