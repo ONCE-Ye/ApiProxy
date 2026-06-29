@@ -73,11 +73,11 @@ npm run dev -- -H 0.0.0.0 -p 3004
 
 首次启用步骤：
 
-1. 打开 GitHub 仓库 `yuan-j-z/ApiProxy`。
+1. 打开 GitHub 仓库 `ONCE-Ye/ApiProxy`。
 2. 进入 `Settings` -> `Pages`。
 3. 在 `Build and deployment` 中将 `Source` 设置为 `GitHub Actions`。
 4. 推送 `main` 分支，或在 `Actions` 中手动运行 `Deploy GitHub Pages`。
-5. 部署完成后访问 `https://yuan-j-z.github.io/ApiProxy/`。
+5. 部署完成后访问 `https://ONCE-Ye.github.io/ApiProxy/`。
 
 本地验证 GitHub Pages 静态构建：
 
@@ -94,7 +94,7 @@ npm run build:pages
 也可以使用 Vercel 部署当前 Next.js 应用：
 
 1. 登录 `https://vercel.com`，选择 `Add New Project`。
-2. 导入 GitHub 仓库 `yuan-j-z/ApiProxy`。
+2. 导入 GitHub 仓库 `ONCE-Ye/ApiProxy`。
 3. Framework 选择 `Next.js`，Build command 使用默认的 `npm run build`。
 4. 点击 `Deploy`，部署完成后会得到一个 `*.vercel.app` 公网地址。
 5. 后续推送到 `main` 分支后，Vercel 会自动重新构建和发布。
