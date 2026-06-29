@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, KeyRound, LogIn } from "lucide-react";
 import { agents, type AgentChannel, type AgentProfile } from "@/data/agents";
 import { getAgentBySlug } from "@/lib/agents";
+import { withBasePath } from "@/lib/site-paths";
 
 type AgentPageProps = {
   params: {
@@ -89,8 +90,8 @@ function AgentIcon({ agent }: { agent: AgentProfile }) {
     <div className="h-20 w-20 flex-none overflow-hidden rounded-md border border-[#cfd8d3] bg-white">
       <div
         aria-hidden="true"
-        className="h-full w-full bg-[url('/agent-icons/agent-icon-set.png')] bg-[length:400%_200%]"
-        style={{ backgroundPosition: agent.imagePosition }}
+        className="h-full w-full bg-[length:400%_200%]"
+        style={{ backgroundImage: "url('" + withBasePath("/agent-icons/agent-icon-set.png") + "')", backgroundPosition: agent.imagePosition }}
       />
     </div>
   );

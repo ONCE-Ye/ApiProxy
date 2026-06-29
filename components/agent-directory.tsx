@@ -7,6 +7,7 @@ import { channelFilterLabels, type AgentChannelFilter, type AgentProfile } from 
 import { providerFilterLabels, type ProviderProfile, type ProviderRegionFilter } from "@/data/providers";
 import { agentStats, filterAgents } from "@/lib/agents";
 import { filterProviders, providerStats } from "@/lib/providers";
+import { withBasePath } from "@/lib/site-paths";
 
 type AgentDirectoryProps = {
   agents: AgentProfile[];
@@ -594,8 +595,8 @@ function AgentIcon({ agent }: { agent: AgentProfile }) {
     <div data-testid={"agent-icon-" + agent.slug} className="h-16 w-16 flex-none overflow-hidden rounded-md border border-[#1d3345] bg-[#0d1929]">
       <div
         aria-hidden="true"
-        className="h-full w-full bg-[url('/agent-icons/agent-icon-set.png')] bg-[length:400%_200%]"
-        style={{ backgroundPosition: agent.imagePosition }}
+        className="h-full w-full bg-[length:400%_200%]"
+        style={{ backgroundImage: "url('" + withBasePath("/agent-icons/agent-icon-set.png") + "')", backgroundPosition: agent.imagePosition }}
       />
     </div>
   );

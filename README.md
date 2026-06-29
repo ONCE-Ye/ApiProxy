@@ -67,7 +67,31 @@ npm run dev -- -H 0.0.0.0 -p 3004
 
 ## 公网部署
 
-推荐使用 Vercel 部署当前 Next.js 应用：
+### 免费方案：GitHub Pages
+
+当前仓库已配置 GitHub Pages 静态部署工作流：`.github/workflows/pages.yml`。推送到 `main` 分支后，GitHub Actions 会执行静态导出并发布到 GitHub Pages。
+
+首次启用步骤：
+
+1. 打开 GitHub 仓库 `yuan-j-z/ApiProxy`。
+2. 进入 `Settings` -> `Pages`。
+3. 在 `Build and deployment` 中将 `Source` 设置为 `GitHub Actions`。
+4. 推送 `main` 分支，或在 `Actions` 中手动运行 `Deploy GitHub Pages`。
+5. 部署完成后访问 `https://yuan-j-z.github.io/ApiProxy/`。
+
+本地验证 GitHub Pages 静态构建：
+
+```bash
+npm run build:pages
+```
+
+该命令会设置 `GITHUB_PAGES=true`，让 Next.js 使用 `/ApiProxy` 作为 `basePath`，并将静态文件导出到 `out/`。`out/` 是构建产物，不需要提交。
+
+注意：GitHub Pages 是静态托管，适合当前目录浏览、搜索、筛选和详情页访问，但不支持公网环境中的 `POST /api/annotations` 批注写入。页面批注仍建议只在本地或后续接入数据库后使用。
+
+### 可选方案：Vercel
+
+也可以使用 Vercel 部署当前 Next.js 应用：
 
 1. 登录 `https://vercel.com`，选择 `Add New Project`。
 2. 导入 GitHub 仓库 `yuan-j-z/ApiProxy`。
