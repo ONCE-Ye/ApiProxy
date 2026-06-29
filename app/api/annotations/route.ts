@@ -16,6 +16,10 @@ type PageAnnotation = {
 const annotationDir = path.join(process.cwd(), ".annotations");
 const annotationFile = path.join(annotationDir, "page-notes.json");
 
+function annotationsWriteEnabled() {
+  return process.env.ENABLE_ANNOTATIONS === "true";
+}
+
 async function readAnnotations(): Promise<PageAnnotation[]> {
   try {
     const contents = await readFile(annotationFile, "utf8");
@@ -31,6 +35,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (!annotationsWriteEnabled()) {
+    return NextResponse.json({ error: "annotations are disabled" }, { status: 403 });
+  }
+
   try {
     const body = await request.json();
     const comment = typeof body.comment === "string" ? body.comment.trim() : "";

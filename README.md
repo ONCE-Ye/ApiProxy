@@ -65,6 +65,26 @@ npm run dev -- -H 0.0.0.0 -p 3004
 
 - `http://localhost:3004`
 
+## 公网部署
+
+推荐使用 Vercel 部署当前 Next.js 应用：
+
+1. 登录 `https://vercel.com`，选择 `Add New Project`。
+2. 导入 GitHub 仓库 `yuan-j-z/ApiProxy`。
+3. Framework 选择 `Next.js`，Build command 使用默认的 `npm run build`。
+4. 点击 `Deploy`，部署完成后会得到一个 `*.vercel.app` 公网地址。
+5. 后续推送到 `main` 分支后，Vercel 会自动重新构建和发布。
+
+公网环境默认不要开启页面批注写入。`app/api/annotations/route.ts` 只有在环境变量 `ENABLE_ANNOTATIONS=true` 时才允许 `POST /api/annotations` 写入本地批注文件；未设置时会返回 `403`。Vercel 等 serverless 平台也不适合依赖本地文件做长期持久化。
+
+如需在受控环境临时开启批注写入：
+
+```bash
+ENABLE_ANNOTATIONS=true npm run dev -- -H 0.0.0.0 -p 3004
+```
+
+公网如果需要长期批注能力，应先接入数据库和访问控制，再开启写入。
+
 ## 项目结构
 
 ```text
@@ -97,9 +117,10 @@ docs/                设计与实现记录
 
 1. 默认页面不显示批注入口。需要批注时，打开带参数的地址，例如 `http://localhost:3004/?annotations=1`。
 2. 点击右上角 `批注模式`，手动进入批注状态。
-3. 点击需要修改的区域，直接填写修改意见。
-4. 点击 `保存到项目批注`，批注会写入 `.annotations/page-notes.json`。
-5. `.annotations/` 已加入 `.gitignore`，批注只作为本地协作输入，不提交到仓库。
+3. 本地需要保存批注时，先用 `ENABLE_ANNOTATIONS=true npm run dev -- -H 0.0.0.0 -p 3004` 启动服务。
+4. 点击需要修改的区域，直接填写修改意见。
+5. 点击 `保存到项目批注`，批注会写入 `.annotations/page-notes.json`。
+6. `.annotations/` 已加入 `.gitignore`，批注只作为本地协作输入，不提交到仓库。
 
 如果保存失败，先确认 `app/api/annotations/route.ts` 是否被 dev server 正确识别。常见修复方式是停止 dev server、删除 `.next`、重新执行 `npm run dev -- -H 0.0.0.0 -p 3004`。
 
