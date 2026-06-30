@@ -37,7 +37,7 @@ describe("AgentDirectory", () => {
     expect(screen.getByRole("heading", { name: "快速对比" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "联系维护" })).toBeInTheDocument();
     expect(screen.getByText("如有收录建议、链接失效或接入信息需要补充，可以通过邮箱联系我。")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "y_j-z@foxmail.com" })).toHaveAttribute("href", "mailto:y_j-z@foxmail.com");
+    expect(screen.getByRole("link", { name: "yehao827810@gmail.com" })).toHaveAttribute("href", "mailto:yehao827810@gmail.com");
     expect(screen.getByTestId("directory-search-panel")).toHaveClass("h-full");
     expect(screen.getByTestId("directory-stats-panel")).toHaveClass("h-full");
     expect(screen.getByTestId("agent-card-codex")).toHaveClass("min-h-[320px]");

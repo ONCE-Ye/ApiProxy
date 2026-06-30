@@ -26,7 +26,7 @@ type AnnotationDraft = {
 
 const agentFilters: AgentChannelFilter[] = ["all", "official-login", "official-api", "china", "global"];
 const providerFilters: ProviderRegionFilter[] = ["all", "china", "global"];
-const contactEmail = "y_j-z@foxmail.com";
+const contactEmail = "yehao827810@gmail.com";
 const contactMessage = "如有收录建议、链接失效或接入信息需要补充，可以通过邮箱联系我。";
 
 function isAnnotationParameterEnabled() {
