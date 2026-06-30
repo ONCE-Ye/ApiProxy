@@ -5,7 +5,7 @@ import { filterProviders, getProviderBySlug, providerStats } from "./providers";
 describe("provider directory data", () => {
   it("contains the verified multi-agent API providers and relay labels", () => {
     expect(providers.map((provider) => provider.slug)).toEqual(
-      expect.arrayContaining(["asxs", "aihubmix", "302ai", "bailian", "beecode", "gmn", "codexcn", "siliconflow", "openrouter", "requesty", "github-agent-hq"])
+      expect.arrayContaining(["asxs", "aihubmix", "302ai", "bailian", "beecode", "gmn", "codexcn", "wintoken", "packycode", "xyc-ai", "luminai", "ykh-ai", "linkai", "ikuncode", "poixe", "chintao", "siliconflow", "openrouter", "requesty", "github-agent-hq"])
     );
     expect(providers.map((provider) => provider.slug)).not.toContain("beeapi");
   });
@@ -34,6 +34,8 @@ describe("provider filtering", () => {
     expect(filterProviders({ query: "BeeAPI" })).toEqual([]);
     expect(filterProviders({ query: "GMN" }).map((provider) => provider.slug)).toEqual(["gmn"]);
     expect(filterProviders({ query: "codexcn.com" }).map((provider) => provider.slug)).toEqual(["codexcn"]);
+    expect(filterProviders({ query: "PackyCode" }).map((provider) => provider.slug)).toEqual(["packycode"]);
+    expect(filterProviders({ query: "relayAPI" }).map((provider) => provider.slug)).toEqual(expect.arrayContaining(["wintoken", "luminai"]));
     expect(filterProviders({ query: "万相" }).map((provider) => provider.slug)).toEqual(["bailian"]);
     expect(filterProviders({ query: "MiniMax" }).map((provider) => provider.slug)).toEqual(expect.arrayContaining(["bailian", "siliconflow"]));
     expect(filterProviders().map((provider) => provider.slug)).not.toContain("ark");
@@ -81,6 +83,10 @@ describe("provider filtering", () => {
     expect(getProviderBySlug("beeapi")).toBeUndefined();
     expect(getProviderBySlug("gmn")?.consoleUrl).toBe("https://gmn.chuangzuoli.com/dashboard");
     expect(getProviderBySlug("codexcn")?.consoleUrl).toBe("https://codexcn.com/");
+    expect(getProviderBySlug("wintoken")?.consoleUrl).toBe("https://wintoken.dev/sign-up");
+    expect(getProviderBySlug("packycode")?.supportedApiLabels).toEqual(expect.arrayContaining(["Claude Code", "Gemini"]));
+    expect(getProviderBySlug("poixe")?.supportedAgentSlugs).toEqual(expect.arrayContaining(["grok", "doubao"]));
+    expect(getProviderBySlug("chintao")?.lastVerified).toBe("2026-06-30");
     expect(getProviderBySlug("missing")).toBeUndefined();
   });
 });
