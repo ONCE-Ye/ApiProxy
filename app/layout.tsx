@@ -3,10 +3,10 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "API 供应导航",
-    template: "%s | API 供应导航"
+    default: "AI 接入导航",
+    template: "%s | AI 接入导航"
   },
-  description: "分开展示官方智能体入口与多智能体 API 平台信息，便于核对官方渠道和供应关系。"
+  description: "汇总官方智能体入口、多模型 API 平台、中转站和工作门户，便于核对访问入口、支持范围和最近核验时间。"
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

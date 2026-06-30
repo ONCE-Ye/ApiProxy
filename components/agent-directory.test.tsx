@@ -13,7 +13,7 @@ describe("AgentDirectory", () => {
   it("renders the directory and filters agent search results", async () => {
     render(<AgentDirectory agents={agents} providers={providers} />);
 
-    expect(screen.getByRole("heading", { name: /API 供应导航/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /AI 接入导航/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /官方智能体/i })).toBeInTheDocument();
     expect(screen.getAllByText("Codex").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Claude").length).toBeGreaterThan(0);
@@ -28,7 +28,7 @@ describe("AgentDirectory", () => {
     render(<AgentDirectory agents={agents} providers={providers} />);
 
     expect(screen.getByTestId("registry-shell")).toHaveClass("bg-[#08111f]");
-    expect(screen.getByRole("heading", { name: "API 供应导航" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "AI 接入导航" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "智能体" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "多智能体 API" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "有官方登录" })).toBeInTheDocument();

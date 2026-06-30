@@ -136,10 +136,10 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
       <section className="border-b border-[#1d3345] bg-[#0b1626]/95 backdrop-blur">
         <div className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="space-y-2">
-              <h1 className="text-2xl font-semibold text-[#f3f7fb] sm:text-3xl">API 供应导航</h1>
-              <p className="max-w-3xl text-sm leading-6 text-[#9fb3c8] sm:text-base">
-                用一张可扫描的工程 registry 区分官方智能体、API 聚合平台和多智能体工作门户；每个入口保留来源、用途、支持范围和最近核验时间。
+            <div className="max-w-3xl space-y-2">
+              <h1 className="text-3xl font-semibold tracking-normal text-[#f3f7fb] sm:text-4xl">AI 接入导航</h1>
+              <p className="max-w-2xl text-sm leading-6 text-[#9fb3c8] sm:text-base">
+                汇总官方智能体入口、多模型 API 平台、中转站和工作门户，保留用途、支持范围、访问入口和最近核验时间。
               </p>
             </div>
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center" data-annotation-ui>
