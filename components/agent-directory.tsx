@@ -137,8 +137,6 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
         <div className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-2">
-              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#64e6c3]">SIGNAL REGISTRY</p>
-              <p className="text-sm font-semibold text-[#64e6c3]">智能体入口、API 平台和工作门户分层核验</p>
               <h1 className="text-2xl font-semibold text-[#f3f7fb] sm:text-3xl">API 供应导航</h1>
               <p className="max-w-3xl text-sm leading-6 text-[#9fb3c8] sm:text-base">
                 用一张可扫描的工程 registry 区分官方智能体、API 聚合平台和多智能体工作门户；每个入口保留来源、用途、支持范围和最近核验时间。

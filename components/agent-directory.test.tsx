@@ -29,8 +29,6 @@ describe("AgentDirectory", () => {
 
     expect(screen.getByTestId("registry-shell")).toHaveClass("bg-[#08111f]");
     expect(screen.getByRole("heading", { name: "API 供应导航" })).toBeInTheDocument();
-    expect(screen.getByText("SIGNAL REGISTRY")).toBeInTheDocument();
-    expect(screen.getByText("智能体入口、API 平台和工作门户分层核验")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "智能体" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "多智能体 API" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "有官方登录" })).toBeInTheDocument();
