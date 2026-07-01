@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Bot, Building2, Check, KeyRound, Layers3, LogIn, Mail, MessageSquarePlus, Network, RadioTower, Save, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
+import { ArrowUpRight, Bot, Building2, Check, Code2, FileText, Globe2, KeyRound, Layers3, LogIn, Mail, MessageSquarePlus, Network, RadioTower, Route, Save, Search, ShieldCheck, SlidersHorizontal, Workflow, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { channelFilterLabels, type AgentChannelFilter, type AgentProfile } from "@/data/agents";
 import { providerFilterLabels, type ProviderProfile, type ProviderRegionFilter } from "@/data/providers";
@@ -16,6 +16,15 @@ type AgentDirectoryProps = {
 
 type DirectoryView = "agents" | "providers";
 
+type NeedShortcut = {
+  label: string;
+  view: DirectoryView;
+  query: string;
+  agentFilter?: AgentChannelFilter;
+  providerFilter?: ProviderRegionFilter;
+  icon: React.ReactNode;
+};
+
 type AnnotationDraft = {
   page: string;
   x: number;
@@ -26,6 +35,14 @@ type AnnotationDraft = {
 
 const agentFilters: AgentChannelFilter[] = ["all", "official-login", "official-api", "china", "global"];
 const providerFilters: ProviderRegionFilter[] = ["all", "china", "global"];
+const needShortcuts: NeedShortcut[] = [
+  { label: "写代码", view: "agents", query: "coding-agent", agentFilter: "all", icon: <Code2 className="h-4 w-4" /> },
+  { label: "长文档", view: "agents", query: "long-context", agentFilter: "all", icon: <FileText className="h-4 w-4" /> },
+  { label: "国内可用", view: "agents", query: "", agentFilter: "china", icon: <Globe2 className="h-4 w-4" /> },
+  { label: "官方 API", view: "agents", query: "", agentFilter: "official-api", icon: <KeyRound className="h-4 w-4" /> },
+  { label: "统一中转", view: "providers", query: "relay aggregator", providerFilter: "all", icon: <Route className="h-4 w-4" /> },
+  { label: "团队工作流", view: "providers", query: "agent portal workflow", providerFilter: "all", icon: <Workflow className="h-4 w-4" /> }
+];
 const contactEmail = "yehao827810@gmail.com";
 const contactMessage = "如有收录建议、链接失效或接入信息需要补充，可以通过邮箱联系我。";
 
@@ -42,6 +59,7 @@ function isAnnotationParameterEnabled() {
 export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
   const [view, setView] = useState<DirectoryView>("agents");
   const [query, setQuery] = useState("");
+  const [activeNeed, setActiveNeed] = useState("");
   const [agentFilter, setAgentFilter] = useState<AgentChannelFilter>("all");
   const [providerFilter, setProviderFilter] = useState<ProviderRegionFilter>("all");
   const [annotationsEnabled] = useState(isAnnotationParameterEnabled);
@@ -62,6 +80,26 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
   function switchView(nextView: DirectoryView) {
     setView(nextView);
     setQuery("");
+    setActiveNeed("");
+  }
+
+  function applyNeedShortcut(shortcut: NeedShortcut) {
+    setView(shortcut.view);
+    setQuery(shortcut.query);
+    setActiveNeed(shortcut.label);
+
+    if (shortcut.agentFilter) {
+      setAgentFilter(shortcut.agentFilter);
+    }
+
+    if (shortcut.providerFilter) {
+      setProviderFilter(shortcut.providerFilter);
+    }
+  }
+
+  function clearSearchContext() {
+    setQuery("");
+    setActiveNeed("");
   }
 
   useEffect(() => {
@@ -218,10 +256,20 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                         </FilterButton>
                       ))}
                 </div>
-                {activeQuery ? (
+
+                <div className="rounded-md border border-[#21384e] bg-[#06101b]/65 p-2">
+                  <div className="mb-2 text-xs font-semibold text-[#7f95ad]">我想要</div>
+                  <div className="flex gap-2 overflow-x-auto">
+                    {needShortcuts.map((shortcut) => (
+                      <NeedButton key={shortcut.label} active={activeNeed === shortcut.label} onClick={() => applyNeedShortcut(shortcut)} icon={shortcut.icon} label={shortcut.label} />
+                    ))}
+                  </div>
+                </div>
+
+                {activeQuery || activeNeed ? (
                   <div className="flex flex-wrap items-center gap-2 text-sm text-[#9fb3c8]">
-                    <span className="rounded-md bg-[#112c35] px-2.5 py-1 font-medium text-[#64e6c3]">正在搜索：{activeQuery}</span>
-                    <button type="button" onClick={() => setQuery("")} className="rounded-md border border-[#29445d] px-2.5 py-1 font-medium text-[#9fb3c8] transition hover:border-[#64e6c3] hover:text-[#dffdf4]">
+                    <span className="rounded-md bg-[#112c35] px-2.5 py-1 font-medium text-[#64e6c3]">{activeNeed ? "正在定位：" + activeNeed : "正在搜索：" + activeQuery}</span>
+                    <button type="button" onClick={clearSearchContext} className="rounded-md border border-[#29445d] px-2.5 py-1 font-medium text-[#9fb3c8] transition hover:border-[#64e6c3] hover:text-[#dffdf4]">
                       清除搜索
                     </button>
                   </div>
@@ -288,10 +336,14 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
 
                     <p data-testid={"agent-summary-" + agent.slug} className="mt-4 min-h-[72px] line-clamp-3 text-sm leading-6 text-[#9fb3c8]">{agent.summary}</p>
 
+                    <InsightPanel label="适合场景" value={getAgentFitLabel(agent)} />
+
                     <div data-testid={"agent-channels-" + agent.slug} className="mt-4 grid min-h-[96px] gap-2 sm:grid-cols-2">
                       <ChannelSummary icon={<LogIn className="h-4 w-4" />} title="官方登录" value={agent.officialLogin?.name} fallback="暂无官方登录入口" />
                       <ChannelSummary icon={<KeyRound className="h-4 w-4" />} title="官方 API" value={agent.officialApi?.name} fallback="暂无已核验官方 API" />
                     </div>
+
+                    <TrustStrip label={getAgentTrustLabel(agent)} verified={agent.lastVerified} />
 
                     <div data-testid={"agent-links-" + agent.slug} className="mt-auto flex flex-wrap gap-2 pt-4">
                       {agent.officialLogin ? <ExternalLink href={agent.officialLogin.url ?? "#"}>登录</ExternalLink> : null}
@@ -373,6 +425,8 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
 
                     <p data-testid={"provider-summary-" + provider.slug} className="mt-4 text-sm leading-6 text-[#9fb3c8]">{provider.summary}</p>
 
+                    <InsightPanel label="适合场景" value={getProviderFitLabel(provider)} />
+
                     <div data-testid={"provider-support-" + provider.slug} className="mt-4 rounded-md border border-[#1d3345] bg-[#0a1422] p-3">
                       <div className="text-xs font-semibold text-[#7f95ad]">{provider.kind === "agent-portal" ? "支持智能体工作流" : "支持智能体 API"}</div>
                       <div className="mt-2 flex flex-wrap gap-2">
@@ -383,6 +437,8 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                     </div>
 
                     <ProviderNotes provider={provider} className="mt-4 text-sm leading-6 text-[#9fb3c8]" />
+
+                    <TrustStrip label={getProviderTrustLabel(provider)} verified={provider.lastVerified} />
 
                     <div data-testid={"provider-links-" + provider.slug} className="mt-auto flex flex-wrap gap-2 pt-4">
                       {provider.consoleUrl ? <ExternalLink href={provider.consoleUrl}>网站地址</ExternalLink> : null}
@@ -457,6 +513,70 @@ function getProviderSupportLabels(provider: ProviderProfile, agentProfiles: Agen
   return provider.supportedAgentSlugs
     .map((slug) => agentProfiles.find((item) => item.slug === slug)?.name)
     .filter((name): name is string => Boolean(name));
+}
+
+function getAgentFitLabel(agent: AgentProfile) {
+  const tags = agent.tags.join(" ").toLowerCase();
+
+  if (tags.includes("coding-agent") || tags.includes("code")) {
+    return "代码开发与任务委派";
+  }
+
+  if (tags.includes("long-context") || tags.includes("documents")) {
+    return "长文档阅读与资料整理";
+  }
+
+  if (tags.includes("multimodal") || tags.includes("browser")) {
+    return "多模态理解与网页任务";
+  }
+
+  if (agent.region === "china") {
+    return "中文对话与国内平台接入";
+  }
+
+  return "通用问答与工具调用";
+}
+
+function getProviderFitLabel(provider: ProviderProfile) {
+  const tags = provider.tags.join(" ").toLowerCase();
+
+  if (provider.kind === "agent-portal") {
+    return "团队智能体工作流";
+  }
+
+  if (provider.isPureRelay || tags.includes("relay") || tags.includes("router")) {
+    return "统一路由多家模型";
+  }
+
+  if (provider.region === "china") {
+    return "国内模型 API 接入";
+  }
+
+  return "多模型 API 调度";
+}
+
+function getAgentTrustLabel(agent: AgentProfile) {
+  if (agent.officialLogin && agent.officialApi) {
+    return "官方渠道";
+  }
+
+  if (agent.officialLogin) {
+    return "官方登录";
+  }
+
+  return "官方资料";
+}
+
+function getProviderTrustLabel(provider: ProviderProfile) {
+  if (provider.kind === "agent-portal") {
+    return "工作门户";
+  }
+
+  if (provider.isPureRelay) {
+    return "非官方中转";
+  }
+
+  return "平台官方";
 }
 
 function getAgentAccentClass(region: AgentProfile["region"]) {
@@ -584,6 +704,23 @@ function ViewTab({ active, onClick, icon, label }: { active: boolean; onClick: (
   );
 }
 
+function NeedButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={
+        "inline-flex h-9 flex-none items-center gap-2 rounded-md border px-3 text-sm font-medium transition " +
+        (active ? "border-[#64e6c3] bg-[#102c35] text-[#dffdf4]" : "border-[#29445d] bg-[#08111f]/70 text-[#b6c7d9] hover:border-[#64e6c3]/70 hover:text-[#dffdf4]")
+      }
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
 function FilterButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
@@ -597,6 +734,30 @@ function FilterButton({ active, onClick, children }: { active: boolean; onClick:
     >
       {children}
     </button>
+  );
+}
+
+function InsightPanel({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="mt-4 rounded-md border border-[#21384e] bg-[#06101b]/70 p-3">
+      <div className="text-xs font-semibold text-[#7f95ad]">{label}</div>
+      <div className="mt-1 text-sm font-medium text-[#f3f7fb]">{value}</div>
+    </div>
+  );
+}
+
+function TrustStrip({ label, verified }: { label: string; verified: string }) {
+  return (
+    <div className="mt-4 grid gap-2 rounded-md border border-[#21384e] bg-[#06101b]/50 p-3 text-xs sm:grid-cols-2">
+      <div>
+        <span className="text-[#7f95ad]">渠道属性</span>
+        <div className="mt-1 font-semibold text-[#dce7f3]">{label}</div>
+      </div>
+      <div>
+        <span className="text-[#7f95ad]">最近核验</span>
+        <div className="mt-1 font-semibold text-[#dce7f3]">{verified}</div>
+      </div>
+    </div>
   );
 }
 

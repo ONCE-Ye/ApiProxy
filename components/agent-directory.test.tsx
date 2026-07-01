@@ -63,6 +63,42 @@ describe("AgentDirectory", () => {
     expect(screen.getByRole("button", { name: "有官方登录" })).toHaveAttribute("aria-pressed", "true");
   });
 
+  it("lets customers start from a concrete usage need", async () => {
+    render(<AgentDirectory agents={agents} providers={providers} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "写代码" }));
+
+    expect(screen.getByText("正在定位：写代码")).toBeInTheDocument();
+    expect(screen.getAllByText("Codex").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Claude").length).toBeGreaterThan(0);
+
+    await userEvent.click(screen.getByRole("button", { name: "统一中转" }));
+
+    expect(screen.getByRole("button", { name: "多智能体 API" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("正在定位：统一中转")).toBeInTheDocument();
+    expect(screen.getAllByText("中转站").length).toBeGreaterThan(0);
+  });
+
+  it("shows concise trust and fit signals on directory cards", async () => {
+    render(<AgentDirectory agents={agents} providers={providers} />);
+
+    const codexCard = screen.getByTestId("agent-card-codex");
+    expect(codexCard).toHaveTextContent("适合场景");
+    expect(codexCard).toHaveTextContent("代码开发与任务委派");
+    expect(codexCard).toHaveTextContent("最近核验");
+    expect(codexCard).toHaveTextContent("2026-06-29");
+    expect(codexCard).toHaveTextContent("官方渠道");
+
+    await userEvent.click(screen.getByRole("button", { name: "多智能体 API" }));
+
+    const openRouterCard = screen.getByTestId("provider-card-openrouter");
+    expect(openRouterCard).toHaveTextContent("适合场景");
+    expect(openRouterCard).toHaveTextContent("统一路由多家模型");
+    expect(openRouterCard).toHaveTextContent("最近核验");
+    expect(openRouterCard).toHaveTextContent("2026-06-25");
+    expect(openRouterCard).toHaveTextContent("非官方中转");
+  });
+
   it("shows and clears active search context", async () => {
     render(<AgentDirectory agents={agents} providers={providers} />);
 
