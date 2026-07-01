@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Bot, Building2, Check, KeyRound, Layers3, LogIn, Mail, MessageSquarePlus, Save, Search, SlidersHorizontal, X } from "lucide-react";
+import { ArrowUpRight, Bot, Building2, Check, KeyRound, Layers3, LogIn, Mail, MessageSquarePlus, Network, RadioTower, Save, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { channelFilterLabels, type AgentChannelFilter, type AgentProfile } from "@/data/agents";
 import { providerFilterLabels, type ProviderProfile, type ProviderRegionFilter } from "@/data/providers";
@@ -133,14 +133,35 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
 
   return (
     <main data-testid="registry-shell" className={"min-h-screen bg-[#08111f] text-[#dce7f3] " + (annotationsEnabled && annotationMode ? "cursor-crosshair" : "")} onClickCapture={handleAnnotationClick}>
-      <section className="border-b border-[#1d3345] bg-[#0b1626]/95 backdrop-blur">
-        <div className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden border-b border-[#1d3345] bg-[#07101d]">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-cover bg-center opacity-75"
+          style={{ backgroundImage: "linear-gradient(90deg, #07101d 0%, rgba(7,16,29,0.92) 34%, rgba(7,16,29,0.36) 70%, rgba(7,16,29,0.78) 100%), url('" + withBasePath("/visuals/api-registry-hero.png") + "')" }}
+        />
+        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(100,230,195,0.18),transparent_28%),radial-gradient(circle_at_86%_16%,rgba(78,162,255,0.22),transparent_30%),linear-gradient(180deg,transparent,rgba(8,17,31,0.92))]" />
+        <div className="relative z-10 mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl space-y-2">
-              <h1 className="text-3xl font-semibold tracking-normal text-[#f3f7fb] sm:text-4xl">AI 接入导航</h1>
-              <p className="max-w-2xl text-sm leading-6 text-[#9fb3c8] sm:text-base">
+            <div className="max-w-3xl space-y-3">
+              <p className="inline-flex w-fit items-center gap-2 rounded-full border border-[#64e6c3]/30 bg-[#071826]/75 px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#64e6c3] shadow-[0_0_30px_rgba(100,230,195,0.12)]">
+                <RadioTower className="h-3.5 w-3.5" />
+                SIGNAL REGISTRY
+              </p>
+              <p className="text-sm font-semibold text-[#64e6c3]">智能体入口、API 平台和工作门户分层核验</p>
+              <h1 className="max-w-2xl text-3xl font-semibold leading-tight text-[#f3f7fb] sm:text-5xl">AI 接入导航</h1>
+              <p className="max-w-3xl text-sm leading-6 text-[#b6c7d9] sm:text-base">
                 汇总官方智能体入口、多模型 API 平台、中转站和工作门户，保留用途、支持范围、访问入口和最近核验时间。
               </p>
+              <div className="flex flex-wrap gap-2 pt-1 text-xs font-semibold text-[#c7d6e6]">
+                <span className="inline-flex h-8 items-center gap-2 rounded-md border border-[#29445d]/80 bg-[#08111f]/70 px-3 backdrop-blur">
+                  <ShieldCheck className="h-3.5 w-3.5 text-[#64e6c3]" />
+                  Verified channels
+                </span>
+                <span className="inline-flex h-8 items-center gap-2 rounded-md border border-[#29445d]/80 bg-[#08111f]/70 px-3 backdrop-blur">
+                  <Network className="h-3.5 w-3.5 text-[#4ea2ff]" />
+                  Agent API map
+                </span>
+              </div>
             </div>
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center" data-annotation-ui>
               {annotationsEnabled ? (
@@ -161,7 +182,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                   批注模式
                 </button>
               ) : null}
-              <div className="inline-flex w-full rounded-md border border-[#29445d] bg-[#0f1b2b] p-1 shadow-[0_10px_30px_rgba(0,0,0,0.2)] sm:w-auto">
+              <div className="inline-flex w-full rounded-md border border-[#34516a] bg-[#071826]/80 p-1 shadow-[0_18px_50px_rgba(0,0,0,0.3)] backdrop-blur sm:w-auto">
                 <ViewTab active={isAgentView} onClick={() => switchView("agents")} icon={<Bot className="h-4 w-4" />} label="智能体" />
                 <ViewTab active={!isAgentView} onClick={() => switchView("providers")} icon={<Building2 className="h-4 w-4" />} label="多智能体 API" />
               </div>
@@ -169,7 +190,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
           </div>
 
           <div className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
-            <div data-testid="directory-search-panel" className="h-full rounded-md border border-[#1d3345] bg-[#0d1929] p-3 shadow-[0_18px_45px_rgba(0,0,0,0.22)] sm:p-4">
+            <div data-testid="directory-search-panel" className="h-full rounded-md border border-[#29445d]/80 bg-[#091522]/82 p-3 shadow-[0_22px_70px_rgba(0,0,0,0.32)] backdrop-blur-xl sm:p-4">
               <div className="space-y-3">
                 <label className="relative block max-w-2xl">
                   <span className="sr-only">{searchLabel}</span>
@@ -179,11 +200,11 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     placeholder={searchPlaceholder}
-                    className="h-11 w-full rounded-md border border-[#29445d] bg-[#08111f] pl-10 pr-3 text-sm text-[#e6eef8] outline-none transition placeholder:text-[#6f879f] focus:border-[#64e6c3] focus:ring-2 focus:ring-[#64e6c3]/15"
+                    className="h-12 w-full rounded-md border border-[#34516a] bg-[#06101b]/90 pl-10 pr-3 text-sm text-[#e6eef8] outline-none transition placeholder:text-[#7890aa] focus:border-[#64e6c3] focus:ring-2 focus:ring-[#64e6c3]/20"
                   />
                 </label>
 
-                <div className="flex items-center gap-2 overflow-x-auto rounded-md border border-[#1d3345] bg-[#08111f] p-1.5">
+                <div className="flex items-center gap-2 overflow-x-auto rounded-md border border-[#21384e] bg-[#06101b]/80 p-1.5">
                   <SlidersHorizontal className="ml-2 h-4 w-4 flex-none text-[#6f879f]" />
                   {isAgentView
                     ? agentFilters.map((option) => (
@@ -208,7 +229,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
               </div>
             </div>
 
-            <div data-testid="directory-stats-panel" className="grid h-full grid-cols-3 gap-3 rounded-md border border-[#1d3345] bg-[#0d1929] p-3 text-center shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+            <div data-testid="directory-stats-panel" className="grid h-full grid-cols-3 gap-3 rounded-md border border-[#29445d]/80 bg-[#091522]/82 p-3 text-center shadow-[0_22px_70px_rgba(0,0,0,0.32)] backdrop-blur-xl">
               {isAgentView ? (
                 <>
                   <Stat label="智能体" value={agentStats.total} />
@@ -228,7 +249,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
       </section>
 
       {isAgentView ? (
-        <section className="mx-auto grid max-w-7xl gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:px-8">
+        <section className="mx-auto grid max-w-7xl gap-5 px-4 py-7 sm:px-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:px-8">
           <div className="grid gap-4">
             <div className="flex items-end justify-between gap-4">
               <div>
@@ -240,7 +261,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
             {visibleAgents.length > 0 ? (
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-2">
                 {visibleAgents.map((agent) => (
-                  <article key={agent.slug} data-testid={"agent-card-" + agent.slug} className={"flex min-h-[320px] flex-col overflow-hidden rounded-md border border-[#1d3345] border-l-4 bg-[#0d1929] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] transition hover:border-[#64e6c3]/60 " + getAgentAccentClass(agent.region)}>
+                  <article key={agent.slug} data-testid={"agent-card-" + agent.slug} className={"group flex min-h-[320px] flex-col overflow-hidden rounded-md border border-[#1d3345] border-l-4 bg-[linear-gradient(145deg,rgba(16,31,49,0.96),rgba(9,21,34,0.96))] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] ring-1 ring-white/[0.03] transition duration-200 hover:-translate-y-0.5 hover:border-[#64e6c3]/60 hover:shadow-[0_24px_70px_rgba(0,0,0,0.32)] " + getAgentAccentClass(agent.region)}>
                     <div data-testid={"agent-header-" + agent.slug} className="flex min-h-[72px] items-center gap-4">
                       <AgentIcon agent={agent} />
                       <div className="min-w-0 flex-1">
@@ -256,7 +277,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                           </div>
                           <Link
                             href={"/agents/" + agent.slug}
-                            className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-md border border-[#1d3345] text-[#9fb3c8] transition hover:border-[#64e6c3] hover:text-[#dffdf4]"
+                            className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-md border border-[#1d3345] bg-[#08111f]/60 text-[#9fb3c8] transition group-hover:border-[#64e6c3]/70 group-hover:text-[#dffdf4] hover:border-[#64e6c3] hover:text-[#dffdf4]"
                             aria-label={"查看 " + agent.name + " 详情"}
                           >
                             <ArrowUpRight className="h-4 w-4" />
@@ -297,7 +318,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                       <th className="px-3 py-2">官方获取方式</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#dbe2de]">
+                  <tbody className="divide-y divide-[#1d3345]">
                     {visibleAgents.map((agent) => (
                       <tr key={agent.slug}>
                         <td className="px-3 py-3 font-medium text-[#f3f7fb]">{agent.name}</td>
@@ -312,7 +333,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
           </aside>
         </section>
       ) : (
-        <section className="mx-auto grid max-w-7xl gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:px-8">
+        <section className="mx-auto grid max-w-7xl gap-5 px-4 py-7 sm:px-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:px-8">
           <div className="grid gap-4">
             <div>
               <h2 className="text-lg font-semibold text-[#f3f7fb] sm:text-xl">多智能体 API 与工作门户</h2>
@@ -325,7 +346,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                   <article
                     key={provider.slug}
                     data-testid={"provider-card-" + provider.slug}
-                    className={"flex min-h-[360px] flex-col overflow-hidden rounded-md border border-[#1d3345] border-l-4 bg-[#0d1929] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] transition hover:border-[#64e6c3]/60 " + getProviderAccentClass(provider)}
+                    className={"group flex min-h-[360px] flex-col overflow-hidden rounded-md border border-[#1d3345] border-l-4 bg-[linear-gradient(145deg,rgba(16,31,49,0.96),rgba(9,21,34,0.96))] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)] ring-1 ring-white/[0.03] transition duration-200 hover:-translate-y-0.5 hover:border-[#64e6c3]/60 hover:shadow-[0_24px_70px_rgba(0,0,0,0.32)] " + getProviderAccentClass(provider)}
                   >
                     <div className="flex min-h-20 items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
@@ -343,7 +364,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                       </div>
                       <Link
                         href={"/providers/" + provider.slug}
-                        className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-md border border-[#1d3345] text-[#9fb3c8] transition hover:border-[#64e6c3] hover:text-[#dffdf4]"
+                        className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-md border border-[#1d3345] bg-[#08111f]/60 text-[#9fb3c8] transition group-hover:border-[#64e6c3]/70 group-hover:text-[#dffdf4] hover:border-[#64e6c3] hover:text-[#dffdf4]"
                         aria-label={"查看 " + provider.name + " 详情"}
                       >
                         <ArrowUpRight className="h-4 w-4" />
@@ -388,7 +409,7 @@ export function AgentDirectory({ agents, providers }: AgentDirectoryProps) {
                       <th className="px-3 py-2">支持范围</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#dbe2de]">
+                  <tbody className="divide-y divide-[#1d3345]">
                     {visibleProviders.map((provider) => (
                       <tr key={provider.slug}>
                         <td className="px-3 py-3 font-medium text-[#f3f7fb]">{provider.name}</td>
@@ -554,7 +575,7 @@ function ViewTab({ active, onClick, icon, label }: { active: boolean; onClick: (
       aria-pressed={active}
       className={
         "inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition sm:min-w-[140px] " +
-        (active ? "bg-[#64e6c3] text-[#05131d] shadow-sm" : "text-[#9fb3c8] hover:bg-[#12243a]")
+        (active ? "bg-[#64e6c3] text-[#05131d] shadow-[0_10px_24px_rgba(100,230,195,0.22)]" : "text-[#b6c7d9] hover:bg-[#12243a]")
       }
     >
       {icon}
@@ -571,7 +592,7 @@ function FilterButton({ active, onClick, children }: { active: boolean; onClick:
       aria-pressed={active}
       className={
         "h-8 flex-none rounded-md px-3 text-sm font-medium transition " +
-        (active ? "bg-[#64e6c3] text-[#05131d] shadow-sm" : "text-[#9fb3c8] hover:bg-[#12243a]")
+        (active ? "bg-[#64e6c3] text-[#05131d] shadow-[0_10px_24px_rgba(100,230,195,0.2)]" : "text-[#b6c7d9] hover:bg-[#12243a]")
       }
     >
       {children}
@@ -581,7 +602,7 @@ function FilterButton({ active, onClick, children }: { active: boolean; onClick:
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-md border border-[#1d3345] bg-[#0a1422] px-2 py-3">
+    <div className="rounded-md border border-[#21384e] bg-[#06101b]/76 px-2 py-3 ring-1 ring-white/[0.03]">
       <div className="text-2xl font-semibold text-[#f3f7fb]">{value}</div>
       <div className="mt-1 text-xs text-[#9fb3c8]">{label}</div>
     </div>
@@ -590,7 +611,7 @@ function Stat({ label, value }: { label: string; value: number }) {
 
 function AgentIcon({ agent }: { agent: AgentProfile }) {
   return (
-    <div data-testid={"agent-icon-" + agent.slug} className="h-16 w-16 flex-none overflow-hidden rounded-md border border-[#1d3345] bg-[#0d1929]">
+    <div data-testid={"agent-icon-" + agent.slug} className="h-16 w-16 flex-none overflow-hidden rounded-md border border-[#29445d] bg-[#0d1929] shadow-[0_12px_28px_rgba(0,0,0,0.28)]">
       <div
         aria-hidden="true"
         className="h-full w-full bg-[length:400%_200%]"
@@ -602,7 +623,7 @@ function AgentIcon({ agent }: { agent: AgentProfile }) {
 
 function ChannelSummary({ icon, title, value, fallback }: { icon: React.ReactNode; title: string; value?: string; fallback: string }) {
   return (
-    <div className="flex min-h-[96px] flex-col justify-between rounded-md border border-[#1d3345] bg-[#0a1422] p-3">
+    <div className="flex min-h-[96px] flex-col justify-between rounded-md border border-[#21384e] bg-[#06101b]/70 p-3">
       <div className="flex items-center gap-2 text-xs font-semibold text-[#7f95ad]">
         {icon}
         <span>{title}</span>
@@ -640,12 +661,12 @@ function RelayBadge({ isPureRelay }: { isPureRelay: boolean }) {
 }
 
 function SupportBadge({ label }: { label: string }) {
-  return <span className="inline-flex h-7 items-center rounded-md border border-[#1d3345] bg-[#0d1929] px-2.5 text-sm text-[#c7d6e6]">{label}</span>;
+  return <span className="inline-flex h-7 items-center rounded-md border border-[#21384e] bg-[#06101b]/70 px-2.5 text-sm text-[#c7d6e6]">{label}</span>;
 }
 
 function InfoPanel({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-md border border-[#1d3345] bg-[#0d1929] p-4 shadow-[0_1px_2px_rgba(17,24,39,0.04)]">
+    <div className="rounded-md border border-[#1d3345] bg-[linear-gradient(145deg,rgba(15,28,44,0.96),rgba(8,17,31,0.96))] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.2)] ring-1 ring-white/[0.03]">
       <div className="flex items-center gap-2">
         {icon}
         <h3 className="text-base font-semibold text-[#f3f7fb]">{title}</h3>
@@ -659,7 +680,7 @@ function ContactPanel() {
   return (
     <InfoPanel icon={<Mail className="h-4 w-4 text-[#2d6a5f]" />} title="联系维护">
       <p>{contactMessage}</p>
-      <a href={"mailto:" + contactEmail} className="mt-3 inline-flex h-9 items-center rounded-md border border-[#1d3345] bg-[#0d1929] px-3 font-medium text-[#c7d6e6] transition hover:border-[#64e6c3] hover:text-[#dffdf4]">
+      <a href={"mailto:" + contactEmail} className="mt-3 inline-flex h-9 items-center rounded-md border border-[#29445d] bg-[#08111f]/70 px-3 font-medium text-[#c7d6e6] transition hover:border-[#64e6c3] hover:text-[#dffdf4]">
         {contactEmail}
       </a>
     </InfoPanel>
@@ -668,7 +689,7 @@ function ContactPanel() {
 
 function EmptyState({ title, description }: { title: string; description: string }) {
   return (
-    <div className="rounded-lg border border-dashed border-[#aeb8c6] bg-[#0d1929]/90 px-6 py-10 text-center shadow-[0_1px_2px_rgba(17,24,39,0.05)]">
+    <div className="rounded-lg border border-dashed border-[#29445d] bg-[#0d1929]/90 px-6 py-10 text-center shadow-[0_18px_45px_rgba(0,0,0,0.18)]">
       <h3 className="text-base font-semibold text-[#f3f7fb]">{title}</h3>
       <p className="mt-2 text-sm text-[#9fb3c8]">{description}</p>
     </div>
@@ -681,7 +702,7 @@ function ExternalLink({ href, children }: { href: string; children: React.ReactN
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex h-9 items-center gap-1 rounded-md border border-[#1d3345] bg-[#0d1929] px-3 text-sm font-medium text-[#c7d6e6] transition hover:border-[#64e6c3] hover:text-[#dffdf4]"
+      className="inline-flex h-9 items-center gap-1 rounded-md border border-[#29445d] bg-[#08111f]/70 px-3 text-sm font-medium text-[#c7d6e6] transition hover:border-[#64e6c3] hover:bg-[#10243a] hover:text-[#dffdf4]"
     >
       {children}
       <ArrowUpRight className="h-3.5 w-3.5" />
